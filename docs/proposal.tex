@@ -1,0 +1,53 @@
+\documentclass[twocolumn]{article}
+
+\newcommand{\ttt}{\texttt}
+
+\title{Hardware Acceleration for A Singuarly Valuable Decomposition \\ TYRION}
+
+\author{
+	Chae Jubb \\ \ttt{ecj2122@columbia.edu} \\ Columbia University
+	\and
+	Ruchir Khaitan \\ \ttt{rk2660@columbia.edu} \\ Columbia University
+}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Overview}
+We intend to build a hardware accelerator for the singular value decomposition
+(SVD) and maybe the randomized SVD. Essentially, this will be a peripheral to
+compute basic matrix operations like matrix multiply, transpose, etc. Those
+basic steps can then be composed in hardware to compute subportions of a Jacobi
+SVD algorithm using the Kogbetliantz method, which is very parallelizable. This
+approach was implemented by Ma, Kaye, et al in 2006 \cite{FPGA_SVD_ma}.  We will
+also be consulting other supplementary sources to determine the final
+implementation \cite{berry2006parallel, halko2011finding}.  We will optimize the
+algorithm specifically for the SoCKit by appropriately splitting the workload
+between the onboard ARM processor and the FPGA.
+
+\section*{Evaluation}
+Our evaluation will involve comparing the performance of our joint
+hardware-software implementation against a pure software implementation.  This
+implementation will be either obtained or written and serve as the origination
+of our porting.
+
+\section*{Project Requirements}
+Our project requires only the Cyclone SoCKit board.  We will be utilizing the
+ARM processor as well as the FPGA to optimize the performance of the SVD
+algorithm.
+
+\section*{Milestones}
+\begin{enumerate}
+	\item Implement an SVD algorithm in C
+	\item Define interface between onboard processor and FPGA
+	\item Implement an SVD algorithm split between the FPGA and ARM processor
+\end{enumerate}
+
+%Bibliography
+{\small
+\bibliographystyle{abbrv}
+\bibliography{ref}
+}
+
+\end{document}
