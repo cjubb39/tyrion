@@ -27,6 +27,7 @@ SC_MODULE(svd_tb) {
 		void send(void);
 		void recv(void);
 		void fill_buf(void);
+		void print_buf(svd_token);
 
     SC_CTOR(svd_tb) 
         : clk("clk")

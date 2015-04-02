@@ -1,10 +1,21 @@
 #include "svd_tb.h"
+#include <stdio.h>
+
+void svd_tb::print_buf(svd_token s) {
+	int i; 
+	for (i = 0; i < s.size * s.size; i++) {
+		printf("%d\t", s.matrix[i]);
+		if (i && !i%s.size)
+			printf("\n");
+	}
+}	
 
 
 void svd_tb::fill_buf() {
         //Not sure what headers I can use here so 
         //real basic matrix
-        int i = 0; 
+        int i = 0;
+	svd_buf_in.size = MAX_SIZE; 
         for(; i < MAX_SIZE * MAX_SIZE; i ++) {
             svd_buf_in.matrix[i] = i; 
         }
