@@ -1,3 +1,6 @@
+#ifndef __SVDTB_H__
+#define __SVDTB_H__
+
 #include "systemc.h"
 
 #include <iostream>
@@ -5,9 +8,6 @@
 #include <ctime>
 #include <ostream>
 #include "mydata.h"
-
-#ifndef __SVDTB_H__
-#define __SVDTB_H__
 
 #include "mydata.h"
 
