@@ -14,7 +14,7 @@
 SC_MODULE(svd_tb) {
     sc_in<bool> clk; 
     sc_in<bool> rst;
-    sc_in<bool> rst_dut;
+    sc_out<bool> rst_dut;
 
     sc_out<svd_token> data_in; 
     sc_out<bool> req_in; 
