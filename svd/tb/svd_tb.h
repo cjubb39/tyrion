@@ -26,6 +26,7 @@ SC_MODULE(svd_tb) {
 
 		void send(void);
 		void recv(void);
+		void fill_buf(void);
 
     SC_CTOR(svd_tb) 
         : clk("clk")
@@ -45,14 +46,7 @@ SC_MODULE(svd_tb) {
     }
 
 #if 0
-    void fill_buf() {
-        //Not sure what headers I can use here so 
-        //real basic matrix
-        int i = 0; 
-        for(; i < MAX_SIZE * MAX_SIZE; i ++) {
-            self.svd_buf_in.matrix[i] = i; 
-        }
-    }
+    
 #endif
 
 private:
