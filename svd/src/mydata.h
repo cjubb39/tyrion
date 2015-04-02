@@ -29,7 +29,14 @@ class svd_token {
 	}
 
 	friend ostream& operator<< (ostream &os, svd_token const &st) {
-		os << "svd_token put-out not implemented";
+		unsigned i, j;
+		for (i = 0; i < st.size; ++i) {
+			for (j = 0; j < st.size; ++j) {
+				os << st.matrix[i * st.size + j] << " ";
+			}
+			os << endl;
+		}
+
 		return os;
 	}
 };

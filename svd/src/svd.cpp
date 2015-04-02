@@ -22,6 +22,9 @@ void svd::beh(void) {
 		/* call to jacobi */
 		wait();
 		jacobi(matrix_in.matrix, matrix_in.size, s.matrix, u.matrix, v.matrix);
+		s.size = matrix_in.size;
+		u.size = matrix_in.size;
+		v.size = matrix_in.size;
 		wait();
 
 		/* send U back */
