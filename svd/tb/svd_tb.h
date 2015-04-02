@@ -12,6 +12,9 @@
 
 SC_MODULE(svd_tb) {
     sc_in<bool> clk; 
+    sc_in<bool> rst;
+    sc_in<bool> rst_dut;
+
     sc_out<unsigned> data_in; 
     sc_out<bool> req_in; 
     sc_in<bool> grant_in; 
