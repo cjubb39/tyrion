@@ -2,7 +2,7 @@
 
 #include "jacobi.h"
 
-svd::beh(void) {
+void svd::beh(void) {
 	/* reset behavior */
 	data_in_grant.write(false);
 	data_out_req.write(false);
@@ -50,4 +50,5 @@ svd::beh(void) {
 		data_out_req.write(false);
 		do {wait();}
 		while(data_out_grant.read());
+	}
 }

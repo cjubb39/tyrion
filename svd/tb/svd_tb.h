@@ -1,5 +1,4 @@
-#include <systemc.h>
-#include <ctos_flex_channels.h>
+#include "systemc.h"
 
 #include <iostream>
 #include <iomanip>
@@ -9,6 +8,8 @@
 
 #ifndef __SVDTB_H__
 #define __SVDTB_H__
+
+#include "mydata.h"
 
 SC_MODULE(svd_tb) {
     sc_in<bool> clk; 
@@ -23,6 +24,8 @@ SC_MODULE(svd_tb) {
     sc_in<bool> req_out; 
     sc_out<bool> grant_out; 
 
+		void send(void);
+		void recv(void);
 
     SC_CTOR(svd_tb) 
         : clk("clk")
@@ -35,9 +38,13 @@ SC_MODULE(svd_tb) {
 
     {
         SC_CTHREAD(send, clk.pos()); 
+				reset_signal_is(rst, false);
         SC_CTHREAD(recv, clk.pos()); 
+				reset_signal_is(rst, false);
 
     }
+
+#if 0
     void fill_buf() {
         //Not sure what headers I can use here so 
         //real basic matrix
@@ -46,6 +53,7 @@ SC_MODULE(svd_tb) {
             self.svd_buf_in.matrix[i] = i; 
         }
     }
+#endif
 
 private:
     svd_token svd_buf_in;

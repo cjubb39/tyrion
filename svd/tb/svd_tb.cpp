@@ -1,7 +1,7 @@
 #include "svd_tb.h"
 
 void svd_tb::send(){
-    
+#if 0    
     
     req_in.write(false);
 
@@ -18,13 +18,14 @@ void svd_tb::send(){
         wait(); 
 
     }
+#endif
 
 }
 
 
 
 void svd_tb::recv(){
-
+#if 0
 
     grant_out.write(false); 
 
@@ -37,6 +38,7 @@ void svd_tb::recv(){
 
     }
 
+#endif
 }
 
 

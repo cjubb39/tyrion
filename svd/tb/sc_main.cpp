@@ -15,12 +15,12 @@ int sc_main(int, char**) {
 	/* from TB to DUT */
 	sc_signal<bool> rd_request;
 	sc_signal<bool> rd_grant;
-	sc_signal<svd_token_t> rd_data;
+	sc_signal<svd_token> rd_data;
 
 	/* from DUT to TB */
 	sc_signal<bool> wr_request;
 	sc_signal<bool> wr_grant;
-	sc_signal<svd_token_t> wr_data;
+	sc_signal<svd_token> wr_data;
 
 	svd dut("dut");
 	svd_tb tb("tb");
@@ -37,12 +37,12 @@ int sc_main(int, char**) {
 	tb.clk(clk);
 	tb.rst(rst);
 	tb.rst_dut(rst_dut);
-	tb.data_in(wr_data);
-	tb.req_in(wr_request);
-	tb.grant_in(wr_grant);
-	tb.data_out(rd_data);
-	tb.req_out(rd_request);
-	tb.grant_out(rd_grant);
+	tb.data_in(rd_data);
+	tb.req_in(rd_request);
+	tb.grant_in(rd_grant);
+	tb.data_out(wr_data);
+	tb.req_out(wr_request);
+	tb.grant_out(wr_grant);
 
 
 	/* simulation */
