@@ -1,7 +1,7 @@
 #ifndef _MYDATA_H_
 #define _MYDATA_H_
 
-#define MAX_SIZE 25
+#define MAX_SIZE 5
 
 class svd_token {
 	public:
@@ -12,13 +12,24 @@ class svd_token {
 		size = 0;
 	}
 
+	svd_token(const svd_token &rhs) {
+		size = rhs.size;
+
+		int i, j;
+		for (i = 0; i < size; ++i) {
+			for (j = 0; j < size; ++j) {
+				matrix[i*size + j] = rhs.matrix[i*size+j];
+			}
+		}
+	}
+
 	bool operator== (const svd_token &rhs) const {
 		if (size != rhs.size)
 			return false;
 
 		int i;
 		for (i = 0; i < size * size; ++i)
-			if (matrix[i] != rhs.matrix[i])
+			if (matrix[i] - rhs.matrix[i] > 1e-3)
 				return false;
 
 		return true;

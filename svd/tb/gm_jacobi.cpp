@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
-#include "jacobi.h"
+#include "gm_jacobi.h"
 
-void identify (double *matrix, int dimension) {
+void gm_identify (double *matrix, int dimension) {
 	int row, col;
 	for (row = 0; row < dimension; row++) {
 		for (col = 0; col < dimension; col++) {
@@ -19,7 +19,7 @@ void identify (double *matrix, int dimension) {
 	return;
 }
 
-void copyMatrix (double *a, double *b, int dimension) {
+void gm_copyMatrix (double *a, double *b, int dimension) {
 	int row, col;
 	for (row = 0; row < dimension; row++) {
 		for (col = 0; col < dimension; col++)
@@ -28,7 +28,7 @@ void copyMatrix (double *a, double *b, int dimension) {
 	return;
 }
 
-void multiply (double *left, double *right, double *result, int dimension) {
+void gm_multiply (double *left, double *right, double *result, int dimension) {
 	int leftRow, rightRow; // row numbers of the left and right matrix, respectively	
 	int leftCol, rightCol; // same as above but for columns
 	double tempResult = 0;
@@ -44,7 +44,7 @@ void multiply (double *left, double *right, double *result, int dimension) {
 	return;
 }
 
-void jacobi (double *a, int n, double *s, double *u, double *v) {
+void gm_jacobi (double *a, int n, double *s, double *u, double *v) {
 	// Arrays that contain the coordinates of the elements of the 2x2
 	// sub matrix formed by the largest off-diagonal element. First entry
 	// is the row number and second entry is the column number.
@@ -58,24 +58,24 @@ void jacobi (double *a, int n, double *s, double *u, double *v) {
 	a11=(int*)malloc(sizeof(int)*2); a12=(int*)malloc(sizeof(int)*2);
 	a21=(int*)malloc(sizeof(int)*2); a22=(int*)malloc(sizeof(int)*2);
 
-	identify (u, n);
-	identify (v, n);
+	gm_identify (u, n);
+	gm_identify (v, n);
 
 	if (n == 1) {	// 1x1 matrix is already in SVD
 		s[0] = a[0];
 		return;
 	}
 
-	le = findLargestElement (a, n, &a11, &a12, &a21, &a22);
+	le = gm_findLargestElement (a, n, &a11, &a12, &a21, &a22);
 
 	int count = 0;
 	while (fabs (le.value) > 0.00000000000000000001) {
 		count++;
-		rotate (a, n, u, v, a11, a12, a21, a22);
-		le = findLargestElement (a, n, &a11, &a12, &a21, &a22);
+		gm_rotate (a, n, u, v, a11, a12, a21, a22);
+		le = gm_findLargestElement (a, n, &a11, &a12, &a21, &a22);
 	}
 
-	reorder (a, n, u, v);
+	gm_reorder (a, n, u, v);
 
 	// Copy over the singular values in a to s
 	for (i = 0; i < n; i++) {
@@ -87,7 +87,7 @@ void jacobi (double *a, int n, double *s, double *u, double *v) {
 	return;
 }
 
-void rotate (double *a, int dimension, double *u, double *v, int *x11, int *x12, int *x21, int *x22) {
+void gm_rotate (double *a, int dimension, double *u, double *v, int *x11, int *x12, int *x21, int *x22) {
 	double a11, a12, a21, a22; // elements of the sub-matrix
 	double alpha, beta; // angles used in rotations; alpha is angle of left rotation and beta is angle of right rotation
 	double cosA, sinA, cosB, sinB;
@@ -113,7 +113,7 @@ void rotate (double *a, int dimension, double *u, double *v, int *x11, int *x12,
 	//		| -sinA	cosA |
 	//
 	Ui = (double *) malloc (sizeof (double) * (dimension * dimension));
-	identify (Ui, dimension);
+	gm_identify (Ui, dimension);
 	Ui [x11[0] * dimension + x11[1]] = Ui [x22[0] * dimension + x22[1]] = cosA;
 	Ui [x12[0] * dimension + x12[1]] = sinA;
 	Ui [x21[0] * dimension + x21[1]] = (-1.0) * sinA;
@@ -124,7 +124,7 @@ void rotate (double *a, int dimension, double *u, double *v, int *x11, int *x12,
 	//		| sinB	 cosB |
 	//
 	Vi = (double *) malloc (sizeof (double) * (dimension * dimension));
-	identify (Vi, dimension);
+	gm_identify (Vi, dimension);
 	Vi [x11[0] * dimension + x11[1]] = Vi [x22[0] * dimension + x22[1]] = cosB;
 	Vi [x12[0] * dimension + x12[1]] = (-1.0) * sinB;
 	Vi [x21[0] * dimension + x21[1]] = sinB;
@@ -132,25 +132,25 @@ void rotate (double *a, int dimension, double *u, double *v, int *x11, int *x12,
 	// Rotate a
 	// First on the left with Ui
 	tempResult = (double *) malloc (sizeof (double) * (dimension * dimension));
-	multiply (Ui, a, tempResult, dimension);
-	copyMatrix (tempResult, a, dimension);
+	gm_multiply (Ui, a, tempResult, dimension);
+	gm_copyMatrix (tempResult, a, dimension);
 	// Then on the right with Vi
-	multiply (a, Vi, tempResult, dimension);
-	copyMatrix (tempResult, a, dimension);
+	gm_multiply (a, Vi, tempResult, dimension);
+	gm_copyMatrix (tempResult, a, dimension);
 
 	// Apply rotation matrix Ui to U
-	multiply (Ui, u, tempResult, dimension);
-	copyMatrix (tempResult, u, dimension);
+	gm_multiply (Ui, u, tempResult, dimension);
+	gm_copyMatrix (tempResult, u, dimension);
 	// Apply rotation matrix Vi to V
-	multiply (v, Vi, tempResult, dimension);
-	copyMatrix (tempResult, v, dimension);
+	gm_multiply (v, Vi, tempResult, dimension);
+	gm_copyMatrix (tempResult, v, dimension);
 
 	// Free rotation matrices
 	free (Ui); free (Vi); free (tempResult);
 	return; 
 }
 
-LargestElement findLargestElement (double *matrix, int dimension, int **a11, int **a12, int **a21, int **a22) {
+LargestElement gm_findLargestElement (double *matrix, int dimension, int **a11, int **a12, int **a21, int **a22) {
 	LargestElement *leArray;
 	LargestElement leTemp;
 	int i, j;
@@ -206,7 +206,7 @@ LargestElement findLargestElement (double *matrix, int dimension, int **a11, int
 	return leTemp;
 }
 
-void transpose (double *matrix, int dimension) {
+void gm_transpose (double *matrix, int dimension) {
 	double temp;
 	int row, col;
 	for (row = 0; row < dimension; row++) {
@@ -220,7 +220,7 @@ void transpose (double *matrix, int dimension) {
 	return;
 }
 
-void reorder (double *a, int dimension, double *u, double *v) {
+void gm_reorder (double *a, int dimension, double *u, double *v) {
 	int row, col, x, largestElementRow;
 	double temp; // stores the largest singular value
 	double *p; // permutation matrix
@@ -231,7 +231,7 @@ void reorder (double *a, int dimension, double *u, double *v) {
 
 	for (x = 0; x < dimension; x++) {
 		temp = 0.0;
-		identify (p, dimension);
+		gm_identify (p, dimension);
 		for (row = x; row < dimension; row++) {
 			col = row;
 			if (fabs (a [row * dimension + col]) > fabs (temp)) {
@@ -239,33 +239,33 @@ void reorder (double *a, int dimension, double *u, double *v) {
 				largestElementRow = row;
 			}
 		}
-		swapRows (p, x, largestElementRow, dimension);
+		gm_swapRows (p, x, largestElementRow, dimension);
 		// Reorder a
-		multiply (p, a, tempMatrix, dimension); copyMatrix (tempMatrix, a, dimension);
-		multiply (a, p, tempMatrix, dimension); copyMatrix (tempMatrix, a, dimension);
+		gm_multiply (p, a, tempMatrix, dimension); gm_copyMatrix (tempMatrix, a, dimension);
+		gm_multiply (a, p, tempMatrix, dimension); gm_copyMatrix (tempMatrix, a, dimension);
 		// Reorder u
-		multiply (p, u, tempMatrix, dimension); copyMatrix (tempMatrix, u, dimension);
+		gm_multiply (p, u, tempMatrix, dimension); gm_copyMatrix (tempMatrix, u, dimension);
 		// Reorder v
-			multiply (v, p, tempMatrix, dimension); copyMatrix (tempMatrix, v, dimension);
+		gm_multiply (v, p, tempMatrix, dimension); gm_copyMatrix (tempMatrix, v, dimension);
 	}
-	transpose (u, dimension);
-	transpose (v, dimension);
-	identify (p, dimension);
+	gm_transpose (u, dimension);
+	gm_transpose (v, dimension);
+	gm_identify (p, dimension);
 	for (row = 0; row < dimension; row++) {
 		col = row;
 		if (a [row * dimension + col] < 0)
 			p [row * dimension + col] = -1.0;
 	}
-	multiply (p, a, tempMatrix, dimension);
-	copyMatrix (tempMatrix, a, dimension);
-	multiply (u, p, tempMatrix, dimension);
-	copyMatrix (tempMatrix, u, dimension);
+	gm_multiply (p, a, tempMatrix, dimension);
+	gm_copyMatrix (tempMatrix, a, dimension);
+	gm_multiply (u, p, tempMatrix, dimension);
+	gm_copyMatrix (tempMatrix, u, dimension);
 	free (p); free (tempMatrix);
 	return;
 }
 
 // Swap row a with row b of matrix m
-void swapRows (double *m, int a, int b, int dimension) {
+void gm_swapRows (double *m, int a, int b, int dimension) {
 	double temp;
 	for (int col = 0; col < dimension; col++) {
 		temp = m [a * dimension + col];
