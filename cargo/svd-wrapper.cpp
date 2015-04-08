@@ -6,12 +6,12 @@ extern "C" {
 }
 
 #include "svd-wrapper.hpp"
-#include "svd_sched.h"
+#include "mydata.h"
 
-#define SVD_DMA_IN_COUNT 4
-#define SVD_DMA_OUT_COUNT 4
-#define SVD_DMA_IN_SIZE (sizeof(svd_task_t) * SVD_DMA_IN_COUNT)
-#define SVD_DMA_OUT_SIZE (sizeof(svd_task_t) * SVD_DMA_OUT_COUNT)
+#define SVD_DMA_IN_COUNT 1
+#define SVD_DMA_OUT_COUNT 3
+#define SVD_DMA_IN_SIZE (sizeof(svd_token) * SVD_DMA_IN_COUNT)
+#define SVD_DMA_OUT_SIZE (sizeof(svd_token) * SVD_DMA_OUT_COUNT)
 #define SVD_DMA_SIZE (SVD_DMA_IN_SIZE + SVD_DMA_OUT_SIZE)
 
 void svd_wrapper::ioread32(struct io_req *req, struct io_rsp *rsp)
@@ -51,15 +51,15 @@ void svd_wrapper::iowrite32(const struct io_req *req, struct io_rsp *rsp)
 	rsp->val = req->val;
 
 	switch (reg) {
-	case SVD_REG_CMD:
-	    if (req->val == SVD_CMD_RESET) {
-	    	rst_dut.write(false);
-	    	wait();
-	    	rst_dut.write(true);
-	    }
-		else
-		    BUG();
-		status_reg = req->val;
+		case SVD_REG_CMD:
+			if (req->val == SVD_CMD_RESET) {
+				rst_dut.write(false);
+				wait();
+				rst_dut.write(true);
+			}
+			else
+				BUG();
+			status_reg = req->val;
 		break;
 	case SVD_REG_SRC:
 		dma_phys_addr_src = req->val;
@@ -76,23 +76,27 @@ void svd_wrapper::copy_from_dram(u64 index, unsigned length)
 {
 	obj_dbg(&svd->dev.obj, "%s\n", __func__);
 	/* Byte address */
-	out_phys_addr.put(dma_phys_addr_src + (index * sizeof(svd_task_t)));
+	out_phys_addr.put(dma_phys_addr_src + (index * sizeof(svd_token)));
 	/* Number of DMA token (templated type). u16 for svd */
 	out_len.put(length);
 	out_write.put(false);
 	out_start.put(true);
+#if 0
 	write_to_device();
+#endif
 }
 
+#if 0
 void svd_wrapper::write_to_device()
 {
 	
 }
+#endif
 
 void svd_wrapper::copy_to_dram(u64 index, unsigned length)
 {
 	obj_dbg(&svd->dev.obj, "%s\n", __func__);
-	out_phys_addr.put(dma_phys_addr_dst + (index * sizeof(svd_task_t)));
+	out_phys_addr.put(dma_phys_addr_dst + (index * sizeof(svd_token)));
 	out_len.put(length);
 	out_write.put(true);
 	out_start.put(true);
@@ -131,7 +135,7 @@ void svd_wrapper::drive()
 			unsigned length = rd_length.read();
 
 			rd_tran_cnt++;
-			rd_byte += length * sizeof(svd_task_t);
+			rd_byte += length * sizeof(svd_token);
 
 			rd_grant.write(true);
 
@@ -147,7 +151,7 @@ void svd_wrapper::drive()
 			unsigned length = wr_length.read();
 
 			wr_tran_cnt++;
-			wr_byte += length * sizeof(svd_task_t);
+			wr_byte += length * sizeof(svd_token);
 
 			wr_grant.write(true);
 

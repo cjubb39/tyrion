@@ -21,7 +21,7 @@ static int svd_create(const struct device_desc *desc, const char *name)
 	svd->dev.obj.release = svd_release;
 	svd->dev.obj.name = name;
 	svd->dev.id = desc->id;
-	svd->dev.length = FLASH_NR_REGS * sizeof(u32);
+	svd->dev.length = SVD_NR_REGS * sizeof(u32);
 
 	if (device_sync_register(&svd->dev, svd_main)) {
 		free(svd);

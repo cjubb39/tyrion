@@ -3,19 +3,19 @@ extern "C" {
 #include <sys/types.h>
 #include <csp/csp.h>
 
-#include "flash-sync.h"
+#include "svd-sync.h"
 #include "sync.h"
 }
 
 #include <flex_channels.hpp>
-#include "flash-wrapper.hpp"
-#include "flash.h"
+#include "svd-wrapper.hpp"
+#include "svd.h"
 
 #include <sc_dma_controller.hpp>
 
-void flash_main(struct device *dev)
+void svd_main(struct device *dev)
 {
-  struct flash_sync *flash_dev = dev_to_flash(dev);
+  struct svd_sync *svd_dev = dev_to_svd(dev);
   sc_clock         clk("clk", 1, SC_NS);
   sc_signal<bool>  rst("rst");
   sc_signal<bool>  rst_dut("rst_dut");
@@ -35,11 +35,11 @@ void flash_main(struct device *dev)
   put_get_channel<unsigned long>      dma_len;
   put_get_channel<bool>               dma_write;
   put_get_channel<bool>               dma_start;
-  put_get_channel<flash_task_t>       dma_in_data;
-  put_get_channel<flash_task_t>       dma_out_data;
+  put_get_channel<svd_token>          dma_in_data;
+  put_get_channel<svd_token>          dma_out_data;
 
   /* FLASH */
-  sc_signal<bool>           operational;
+#if 0
   sc_signal<bool>           sched_req;
   sc_signal<bool>           sched_grant;
   sc_signal<flash_pid_t>    next_process;
@@ -51,19 +51,28 @@ void flash_main(struct device *dev)
   sc_signal<flash_pid_t>    change_pid;
   sc_signal<flash_pri_t>    change_pri;
   sc_signal<flash_state_t>  change_state;
+#endif
 
-  flash_wrapper                   wrapper("wrapper", flash_dev);
-  flash                           dut("dut");
-  sc_dma_controller<flash_task_t> dma("dma_controller", &dev->dma_cont);
-  int                             budget_on_loan = 0;
-  int                             budget;
+	sc_signal<bool>       data_in_req;
+	sc_signal<bool>       data_in_grant;
+	sc_signal<svd_token>  data_in;
+
+	sc_signal<bool>       data_out_req;
+	sc_signal<bool>       data_out_grant;
+	sc_signal<svd_token>  data_out;
+
+  svd_wrapper                   wrapper("wrapper", svd_dev);
+  svd                           dut("dut");
+  sc_dma_controller<svd_token>  dma("dma_controller", &dev->dma_cont);
+  int                           budget_on_loan = 0;
+  int                           budget;
 
   sc_report_handler::set_actions("/IEEE_Std_1666/deprecated", SC_DO_NOTHING);
 
   /* wire everything */
   dut.clk(clk);
   dut.rst(rst_dut);
-  dut.operational(operational);
+#if 0
   dut.sched_req(sched_req);
   dut.sched_grant(sched_grant);
   dut.next_process(next_process);
@@ -75,11 +84,18 @@ void flash_main(struct device *dev)
   dut.change_pid(change_pid);
   dut.change_pri(change_pri);
   dut.change_state(change_state);
+#endif
+	dut.data_in_req(data_in_req);
+	dut.data_in_grant(data_in_grant);
+	dut.data_in(data_in);
+	dut.data_out_req(data_out_req);
+	dut.data_out_grant(data_out_grant);
+	dut.data_out(data_out);
 
   wrapper.clk(clk);
   wrapper.rst(rst);
   wrapper.rst_dut(rst_dut);
-  wrapper.operational(operational);
+#if 0
   wrapper.sched_req(sched_req);
   wrapper.sched_grant(sched_grant);
   wrapper.next_process(next_process);
@@ -90,6 +106,14 @@ void flash_main(struct device *dev)
   wrapper.change_pid(change_pid);
   wrapper.change_pri(change_pri);
   wrapper.change_state(change_state);
+#endif
+	wrapper.data_in_req(data_in_req);
+	wrapper.data_in_grant(data_in_grant);
+	wrapper.data_in(data_in);
+	wrapper.data_out_req(data_out_req);
+	wrapper.data_out_grant(data_out_grant);
+	wrapper.data_out(data_out);
+
   wrapper.rd_index(rd_index);   // array index
   wrapper.rd_length(rd_length);
   wrapper.rd_request(rd_request); // transaction request

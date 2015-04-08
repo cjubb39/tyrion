@@ -12,8 +12,6 @@
 #endif
 #endif /* __KERNEL__ */
 
-#include "../svd_sched.h"
-
 #define DRV_NAME  "svd"
 #define PFX    DRV_NAME ": "
 #define SVD_MAX_DEVICES  64
@@ -33,10 +31,10 @@
 #define SVD_SYNC_DEV_ID    0x2
 
 /* Determine buffer size (bytes) */
-#define SVD_INPUT_NUM 4
-#define SVD_OUTPUT_NUM 4
-#define SVD_INPUT_SIZE	(sizeof(svd_task_t) * SVD_INPUT_NUM)
-#define SVD_OUTPUT_SIZE	(sizeof(svd_task_t) * SVD_OUTPUT_NUM)
+#define SVD_INPUT_NUM 1
+#define SVD_OUTPUT_NUM 3
+#define SVD_INPUT_SIZE	(sizeof(svd_token) * SVD_INPUT_NUM)
+#define SVD_OUTPUT_SIZE	(sizeof(svd_token) * SVD_OUTPUT_NUM)
 
 #define SVD_BUF_SIZE	(SVD_INPUT_SIZE + SVD_OUTPUT_SIZE)
 

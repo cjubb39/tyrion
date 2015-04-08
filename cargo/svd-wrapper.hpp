@@ -9,12 +9,14 @@ extern "C" {
 
 #include "svd.h"
 
+#if 0
 typedef union svd_dma_union {
   svd_pid_t pid;
   svd_pri_t pri;
   svd_state_t state;
   unsigned active :1;
 } svd_dma_u;
+#endif
 
 SC_MODULE(svd_wrapper) {
   sc_in<bool> clk; // clock
@@ -39,8 +41,8 @@ SC_MODULE(svd_wrapper) {
   put_initiator<bool> out_write;
   put_initiator<bool> out_start;
 
+#if 0
   sc_in<bool> operational;
-
   /* schedule requests */
   sc_out<bool>       sched_req;
   sc_in<bool>        sched_grant;
@@ -56,9 +58,18 @@ SC_MODULE(svd_wrapper) {
   sc_out<svd_pid_t>   change_pid;
   sc_out<svd_pri_t>   change_pri;
   sc_out<svd_state_t> change_state;
+#endif
 
-  get_initiator<svd_task_t> from_dma;
-  put_initiator<svd_task_t> to_dma;
+	sc_in<bool>        data_in_req;
+	sc_out<bool>       data_in_grant;
+	sc_in<svd_token>   data_in;
+
+	sc_out<bool>        data_out_req;
+	sc_in<bool>         data_out_grant;
+	sc_out<svd_token>   data_out;
+
+  get_initiator<svd_token> from_dma;
+  put_initiator<svd_token> to_dma;
 
   void iowrite32(const struct io_req *req, struct io_rsp *rsp);
   void ioread32(struct io_req *req, struct io_rsp *rsp);
