@@ -7,7 +7,6 @@
 cargo
 svd-mmap
 *.tar
-*.cmd
 test/.built-in.o.cmd
 test/.svd.ko.cmd
 test/.svd.mod.o.cmd
@@ -16,4 +15,3 @@ test/.tmp_versions/
 test/Module.symvers
 test/svd.mod.c
 test/modules.order
-*inout/

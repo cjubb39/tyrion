@@ -15,83 +15,71 @@
 
 #include <asm/uaccess.h>
 
-#include "svd_driver.h"
+#include "svd.h"
 
 /* device struct */
 struct svd_device {
-	struct cdev cdev;           /* char devices structure */
-	struct dad_device *dad_dev; /* parent device */
-	struct device *dev;         /* associated device */
-	struct module *module;
-	struct mutex lock;
-	struct completion completion;
-	void __iomem *iomem;        /* mmapped registers */
-	size_t max_size;            /* Maximum buffer size to be DMA'd to/from in bytes */
-	int number;
-	//int irq;
+	struct cdev cdev;
+  struct dad_device *dad_dev; /* parent device */
+  struct device *dev;
+  struct module *module;
+  struct mutex lock;
+  struct completion completion;
+  void __iomem *iomem; /* mmapped regs */
+  size_t max_size;
+  int number;
 };
 
 struct svd_file {
-	struct svd_device *dev;
-	void *vbuf; /* virtual address of physically contiguous buffer */
-	dma_addr_t dma_handle; /* physical address of the same buffer */
-	size_t size;
+  struct svd_device *dev;
+  void *vbuf; /* virtual address of contiguous buffer */
+  dma_addr_t dma_handle; /* physical address of that buffer */
+  size_t size;
 };
 
 static const struct dad_device_id svd_ids[] = {
-	{ SVD_SYNC_DEV_ID },
-	{ },
+  { SVD_SYNC_DEV_ID },
+  { },
 };
 
 static struct class *svd_class;
 static dev_t svd_devno;
 static dev_t svd_n_devices;
 
-static irqreturn_t svd_irq(int irq, void *dev)
-{
-	struct svd_device *svd = dev;
-	u32 cmd_reg;
+static irqreturn_t svd_irq(int irq, void *dev) {
+ struct svd_device *svd = dev;
+ u32 cmd_reg;
 
-	// printf("IRQ called\n");
-	cmd_reg = ioread32(svd->iomem + SVD_REG_CMD);
-	cmd_reg >>= SVD_CMD_IRQ_SHIFT;
-	cmd_reg &= SVD_CMD_IRQ_MASK;
+ cmd_reg = ioread32(svd->iomem + SVD_REG_CMD);
+ cmd_reg >>= SVD_CMD_IRQ_SHIFT;
+ cmd_reg &= SVD_CMD_IRQ_MASK;
 
-	if (cmd_reg == SVD_CMD_IRQ_DONE) {
-		complete_all(&svd->completion);
-		iowrite32(0, svd->iomem + SVD_REG_CMD);
-		return IRQ_HANDLED;
-	}
-	return IRQ_NONE;
+ if (cmd_reg == SVD_CMD_IRQ_DONE) {
+	 complete_all(&svd->completion);
+	 iowrite32(0, svd->iomem + SVD_REG_CMD);
+	 return IRQ_HANDLED;
+ }
+ return IRQ_NONE;
 }
 
 static bool svd_access_ok(struct svd_device *svd,
-			const struct svd_access *access)
-{
-	// unsigned max_sz = ioread32(svd->iomem + SVD_REG_MAX_SIZE);
-	// unsigned size = access->size;
-	// // printf("Max size: %d, current size: %d\n", max_sz, size);
-	// if (size > max_sz || size <= 0)
-	// 	return false;
+			const struct svd_access *access) {
+	unsigned max_sz = ioread32(svd->iomem + SVD_REG_MAX_SIZE);
+	if (access->size > max_sz ||
+		access->size <= 0)
+		return false;
 
 	return true;
 }
 
 static int svd_transfer(struct svd_device *svd,
 			struct svd_file *file,
-			const struct svd_access *access)
-{
+			const struct svd_access *access) {
 	/* compute the input and output burst */
 	int wait;
 
-	// unsigned sz = access->size;
-	// unsigned num = access->num_samples;
-
-	size_t in_buf_size = SVD_INPUT_SIZE;
-	size_t out_buf_size = SVD_OUTPUT_SIZE; 
-
-	// printf("in_buf_size: %d\n", in_buf_size); 
-	// printf("out_buf_size: %d\n", out_buf_size); 
+	unsigned sz = access->size;
+	size_t in_buf_size = SVD_INPUT_SIZE(sz);
 
 	INIT_COMPLETION(svd->completion);
 
@@ -100,34 +88,29 @@ static int svd_transfer(struct svd_device *svd,
 
 	iowrite32(file->dma_handle, svd->iomem + SVD_REG_SRC);
 	iowrite32(file->dma_handle + in_buf_size, svd->iomem + SVD_REG_DST);
-	// iowrite32(0x1, svd->iomem + SVD_REG_CMD);
+	iowrite32(access->size, svd->iomem + SVD_REG_SIZE);
+	iowrite32(0x1, svd->iomem + SVD_REG_CMD);
 
-	// wait = wait_for_completion_interruptible(&svd->completion);
-	// if (wait < 0)
-	// 	return -EINTR;
+	wait = wait_for_completion_interruptible(&svd->completion);
+	if (wait < 0)
+		return -EINTR;
 	return 0;
 }
 
-static int svd_access_ioctl(struct svd_device *svd,
+static int svd_access_ioctl(
+			struct svd_device *svd,
 			struct svd_file *file,
-			void __user *arg)
-{
+			void __user *arg) {
 	struct svd_access access;
 
-	// printf("Copying from user\n");
 	if (copy_from_user(&access, arg, sizeof(access)))
 		return -EFAULT;
-	// printf("Copying successful\n");
 
-	// printf("Checking access\n");
 	if (!svd_access_ok(svd, &access))
 		return -EINVAL;
-	// printf("Access is ok\n");
 
-	// printf("Locking mutex\n");
 	if (mutex_lock_interruptible(&svd->lock))
 		return -EINTR;
-	// printf("Lock acquired\n");
 
 	svd_transfer(svd, file, &access);
 	mutex_unlock(&svd->lock);
@@ -135,27 +118,29 @@ static int svd_access_ioctl(struct svd_device *svd,
 	return 0;
 }
 
-static long svd_do_ioctl(struct file *file, unsigned int cm, void __user *arg)
-{
+static long svd_do_ioctl(
+			struct file *file,
+			unsigned int cm,
+			void __user *arg) {
 	struct svd_file *priv = file->private_data;
 	struct svd_device *svd = priv->dev;
 
 	switch (cm) {
-	case SVD_IOC_ACCESS:
-		// printf("SVD_IOC_ACCESS\n");
-		return svd_access_ioctl(svd, priv, arg);
-	default:
-		return -ENOTTY;
+		case SVD_IOC_ACCESS:
+			return svd_access_ioctl(svd, priv, arg);
+		default:
+			return -ENOTTY;
 	}
 }
 
-static long svd_ioctl(struct file *file, unsigned int cm, unsigned long arg)
-{
+static long svd_ioctl(
+			struct file *file,
+			unsigned int cm,
+			unsigned long arg) {
 	return svd_do_ioctl(file, cm, (void __user *)arg);
 }
 
-static int svd_mmap(struct file *file, struct vm_area_struct *vma)
-{
+static int svd_mmap(struct file *file, struct vm_area_struct *vma) {
 	struct svd_file *priv = file->private_data;
 	struct svd_device *svd = priv->dev;
 	unsigned long pfn;
@@ -170,8 +155,7 @@ static int svd_mmap(struct file *file, struct vm_area_struct *vma)
 	return remap_pfn_range(vma, vma->vm_start, pfn, size, vma->vm_page_prot);
 }
 
-static int svd_open(struct inode *inode, struct file *file)
-{
+static int svd_open(struct inode *inode, struct file *file) {
 	struct svd_file *priv;
 	struct svd_device *svd;
 	int rc;
@@ -206,8 +190,7 @@ err_dma_alloc:
 	return rc;
 }
 
-static int svd_release(struct inode *inode, struct file *file)
-{
+static int svd_release(struct inode *inode, struct file *file) {
 	struct svd_file *priv = file->private_data;
 	struct svd_device *svd = priv->dev;
 
@@ -217,20 +200,16 @@ static int svd_release(struct inode *inode, struct file *file)
 	return 0;
 }
 
-/*
- * pointers to functions defined by the driver that perform various operation
- * over the device
- */
+/* driver-defined functions for interacting with device */
 static const struct file_operations svd_fops = {
 	.owner           = THIS_MODULE,
-	.open            = svd_open,
-	.release         = svd_release,
-	.unlocked_ioctl  = svd_ioctl,
-	.mmap            = svd_mmap,
-};
+  .open            = svd_open,
+  .release         = svd_release,
+  .unlocked_ioctl  = svd_ioctl,
+  .mmap            = svd_mmap,
+};	
 
-static int svd_create_cdev(struct svd_device *svd, int ndev)
-{
+static int svd_create_cdev(struct svd_device *svd, int ndev) {
 	dev_t devno = MKDEV(MAJOR(svd_devno), ndev);
 	int rc;
 
@@ -260,16 +239,14 @@ out:
 	return rc;
 }
 
-static void svd_destroy_cdev(struct svd_device *svd, int ndev)
-{
+static void svd_destroy_cdev(struct svd_device *svd, int ndev) {
 	dev_t devno = MKDEV(MAJOR(svd_devno), ndev);
-
+	
 	device_destroy(svd_class, devno);
 	cdev_del(&svd->cdev);
 }
 
-static int svd_probe(struct dad_device *dev)
-{
+static int svd_probe(struct dad_device *dev) {
 	struct svd_device *svd;
 	int dev_id;
 	int rc;
@@ -310,7 +287,7 @@ static int svd_probe(struct dad_device *dev)
 	dev_set_drvdata(&dev->device, svd);
 
 	max_sz = ioread32(svd->iomem + SVD_REG_MAX_SIZE);
-	svd->max_size = round_up(SVD_BUF_SIZE, PAGE_SIZE);
+	svd->max_size = round_up(SVD_BUF_SIZE(max_sz), PAGE_SIZE);
 
 	dev_info(svd->dev, "device registered.\n");
 
@@ -327,8 +304,7 @@ err_ioremap:
 	return rc;
 }
 
-static void __exit svd_remove(struct dad_device *dev)
-{
+static void __exit svd_remove(struct dad_device *dev) {
 	struct svd_device *svd = dev_get_drvdata(&dev->device);
 
 	/* free_irq(dev->irq, svd->dev); */
@@ -339,14 +315,13 @@ static void __exit svd_remove(struct dad_device *dev)
 }
 
 static struct dad_driver svd_driver = {
-	.probe    = svd_probe,
-	.remove    = svd_remove,
-	.name = DRV_NAME,
-	.id_table = svd_ids,
+	.probe      = svd_probe,
+	.remove     = svd_remove,
+  .name       = DRV_NAME,
+  .id_table   = svd_ids,
 };
 
-static int __init svd_sysfs_device_create(void)
-{
+static int __init svd_sysfs_device_create(void) {
 	int rc;
 
 	svd_class = class_create(THIS_MODULE, "svd");
@@ -356,11 +331,7 @@ static int __init svd_sysfs_device_create(void)
 		goto out;
 	}
 
-	/*
-	 * Dynamically allocating device numbers.
-	 *
-	 * The major and minor numbers are global variables
-	 */
+	/* Dynamically allocating dev numbers */
 	rc = alloc_chrdev_region(&svd_devno, 0, SVD_MAX_DEVICES, "svd");
 	if (rc) {
 		printk(KERN_ERR PFX "Failed to allocate chrdev region\n");
@@ -375,19 +346,17 @@ out:
 	return rc;
 }
 
-static void svd_sysfs_device_remove(void)
-{
+static void svd_sysfs_device_remove(void) {
 	dev_t devno = MKDEV(MAJOR(svd_devno), 0);
 
 	class_destroy(svd_class);
-	unregister_chrdev_region(devno, SVD_MAX_DEVICES); /* freeing device numbers */
+
+	/* get rid of dev numbers */
+	unregister_chrdev_region(devno, SVD_MAX_DEVICES);
 }
 
-/* initialization function */
-static int __init svd_init(void)
-{
+static int __init svd_init(void) {
 	int rc;
-
 	printk(KERN_INFO "Device-driver initialization\n");
 	rc = svd_sysfs_device_create();
 	if (rc)
@@ -404,18 +373,18 @@ err:
 	return rc;
 }
 
-/* shutdown function */
-static void __exit svd_exit(void)
-{
+
+/* shut 'er down */
+static void __exit svd_exit(void) {
 	printk(KERN_INFO "Device-driver shutdown\n");
 	dad_unregister_driver(&svd_driver);
 	svd_sysfs_device_remove();
 }
 
-module_init(svd_init) /* register initialization function */
-module_exit(svd_exit) /* register shutdown function */
+module_init(svd_init)
+module_exit(svd_exit)
 
-MODULE_AUTHOR("Chae Jubb");
+MODULE_AUTHOR("Chae Jubb <ecj2122@columbia.edu>");
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("svd driver");
 

@@ -2,10 +2,10 @@
 
 /sbin/mark_app
 
-/sbin/insmod flash.ko
+/sbin/insmod svd.ko
 /sbin/mdev -s
-./flash-mmap &
+./svd-mmap ./inout &
 wait
-/sbin/rmmod flash
+/sbin/rmmod svd
 
 /sbin/qsim_exit

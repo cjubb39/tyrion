@@ -6,38 +6,33 @@ extern "C" {
 }
 
 #include "svd-wrapper.hpp"
-#include "mydata.h"
 
-#define SVD_DMA_IN_COUNT 1
-#define SVD_DMA_OUT_COUNT 3
-#define SVD_DMA_IN_SIZE (sizeof(svd_token) * SVD_DMA_IN_COUNT)
-#define SVD_DMA_OUT_SIZE (sizeof(svd_token) * SVD_DMA_OUT_COUNT)
-#define SVD_DMA_SIZE (SVD_DMA_IN_SIZE + SVD_DMA_OUT_SIZE)
-
-void svd_wrapper::ioread32(struct io_req *req, struct io_rsp *rsp)
-{
+void svd_wrapper::ioread32(struct io_req *req, struct io_rsp *rsp) {
 	int reg = req->local_offset >> 2;
 
-	obj_dbg(&svd->dev.obj, "%s: size %d offset 0x%x\n", __func__, req->size, req->local_offset);
+		obj_dbg(&svd->dev.obj, "%s: size %d offset 0x%x\n", __func__, req->size, req->local_offset);
 
 	switch (reg) {
-	case SVD_REG_CMD:
-		rsp->val = status_reg;
-		break;
-	case SVD_REG_SRC:
-		rsp->val = dma_phys_addr_src;
-		break;
-	case SVD_REG_DST:
-		rsp->val = dma_phys_addr_dst;
-		break;
-	case SVD_REG_MAX_SIZE:
-		rsp->val = SVD_DMA_SIZE;
-		break;
-	case SVD_REG_ID:
-		rsp->val = svd->dev.id;
-		break;
-	default:
-		BUG();
+		case SVD_REG_CMD:
+			rsp->val = status_reg;
+			break;
+		case SVD_REG_SRC:
+			rsp->val = dma_phys_addr_src;
+			break;
+		case SVD_REG_DST:
+			rsp->val = dma_phys_addr_dst;
+			break;
+		case SVD_REG_SIZE:
+			rsp->val = conf_size.read();
+			break;
+		case SVD_REG_MAX_SIZE:
+			rsp->val = MAX_SIZE;
+			break;
+		case SVD_REG_ID:
+			rsp->val = svd->dev.id;
+			break;
+		default:
+			BUG();
 	}
 }
 
@@ -45,79 +40,65 @@ void svd_wrapper::iowrite32(const struct io_req *req, struct io_rsp *rsp)
 {
 	int reg = req->local_offset >> 2;
 
-	obj_dbg(&svd->dev.obj, "%s: size %d offset 0x%x val 0x%x\n",
-		__func__, req->size, req->local_offset, req->val);
+		obj_dbg(&svd->dev.obj, "%s: size %d offset 0x%x val 0x%x\n",
+						__func__, req->size, req->local_offset, req->val);
 
 	rsp->val = req->val;
 
 	switch (reg) {
 		case SVD_REG_CMD:
-			if (req->val == SVD_CMD_RESET) {
-				rst_dut.write(false);
-				wait();
-				rst_dut.write(true);
+    	if (req->val == 1) {
+      	BUG_ON((status_reg != 0));
+				conf_done.write(true);
+				start_fifo.put(true);
 			}
-			else
-				BUG();
+			else if (req->val != 0) {
+		  	BUG();
+			}
 			status_reg = req->val;
-		break;
-	case SVD_REG_SRC:
-		dma_phys_addr_src = req->val;
-		break;
-	case SVD_REG_DST:
-		dma_phys_addr_dst = req->val;
-		break;
-	default:
-		BUG();
+			break;
+		case SVD_REG_SRC:
+			dma_phys_addr_src = req->val;
+			break;
+		case SVD_REG_DST:
+			dma_phys_addr_dst = req->val;
+			break;
+		case SVD_REG_SIZE:
+			conf_size.write(req->val);
+			break;
+		default:
+			BUG();
 	}
 }
 
-void svd_wrapper::copy_from_dram(u64 index, unsigned length)
-{
+void svd_wrapper::copy_from_dram(u64 index, unsigned length) {
 	obj_dbg(&svd->dev.obj, "%s\n", __func__);
-	/* Byte address */
-	out_phys_addr.put(dma_phys_addr_src + (index * sizeof(svd_token)));
-	/* Number of DMA token (templated type). u16 for svd */
+
+	/* byte address */
+	out_phys_addr.put(dma_phys_addr_src +
+			(index * sizeof(SVD_CELL_TYPE /* DMA token */)));
 	out_len.put(length);
 	out_write.put(false);
 	out_start.put(true);
-#if 0
-	write_to_device();
-#endif
 }
 
-#if 0
-void svd_wrapper::write_to_device()
-{
-	
-}
-#endif
-
-void svd_wrapper::copy_to_dram(u64 index, unsigned length)
-{
+void svd_wrapper::copy_to_dram(u64 index, unsigned length) {
 	obj_dbg(&svd->dev.obj, "%s\n", __func__);
-	out_phys_addr.put(dma_phys_addr_dst + (index * sizeof(svd_token)));
+
+	out_phys_addr.put(dma_phys_addr_dst +
+			(index * sizeof(SVD_CELL_TYPE /* DMA token */)));
 	out_len.put(length);
 	out_write.put(true);
 	out_start.put(true);
-	write_to_dma();
 }
 
-void svd_wrapper::write_to_dma()
-{
-
-}
-
-void svd_wrapper::start()
-{
-	// RESET DUT
+void svd_wrapper::start() {
 	rst_dut.write(false);
 	wait();
 	rst_dut.write(true);
 
 	for (;;) {
-		wait();
-
+		start_fifo.get();
 		obj_dbg(&svd->dev.obj, "CTL start\n");
 		drive();
 		obj_dbg(&svd->dev.obj, "SVD done\n");
@@ -129,13 +110,24 @@ void svd_wrapper::drive()
 	for (;;) {
 		do {
 			wait();
-		} while (!rd_request.read() && !wr_request.read());
+		} while (!rd_request.read() && !wr_request.read() && !svd_done.read());
+		
+		if (svd_done.read()) {
+			rst_dut.write(false);
+			wait();
+			rst_dut.write(true);
+			// Set bits 5:4 to "10" -> accelerator done
+		  status_reg &= ~STATUS_RUN;
+			status_reg |= STATUS_DONE;
+			device_sync_irq_raise(&svd->dev);
+			break;
+		}
 		if (rd_request.read()) {
 			unsigned index = rd_index.read();
 			unsigned length = rd_length.read();
 
 			rd_tran_cnt++;
-			rd_byte += length * sizeof(svd_token);
+			rd_byte += length * sizeof(SVD_CELL_TYPE);
 
 			rd_grant.write(true);
 
@@ -143,15 +135,15 @@ void svd_wrapper::drive()
 			while (rd_request.read());
 			rd_grant.write(false);
 			wait();
-
+			
 			copy_from_dram((u64) index, length);
+
 		} else {
 			// WRITE REQUEST
 			unsigned index = wr_index.read();
 			unsigned length = wr_length.read();
-
 			wr_tran_cnt++;
-			wr_byte += length * sizeof(svd_token);
+			wr_byte += length * sizeof(SVD_CELL_TYPE);
 
 			wr_grant.write(true);
 
@@ -183,8 +175,6 @@ void svd_wrapper::io()
 		if (unlikely(io_recv_req(svd->dev.io_req, &req)))
 			die_errno(__func__);
 
-		//cout << req.write << " - " << std::hex << req.local_offset << " ===" << std::dec << (int)req.size << "===" << endl;
-
 		BUG_ON(req.size != 4); /* XXX */
 
 		rsp.local_offset = req.local_offset;
@@ -198,4 +188,4 @@ void svd_wrapper::io()
 			die_errno(__func__);
 	}
 }
-
+	

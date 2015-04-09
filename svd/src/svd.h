@@ -2,7 +2,8 @@
 #define _SVD_H_
 
 #include "systemc.h"
-#include <ctos_flex_channels.h>
+//#include <ctos_flex_channels.h>
+#include <flex_channels.hpp>
 
 #include "svd_data.h"
 
