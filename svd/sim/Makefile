@@ -23,7 +23,7 @@ TARGET := svd
 VPATH := ../src:../tb
 SRCS := jacobi.cpp svd.cpp svd_tb.cpp sc_main.cpp gm_jacobi.cpp
 OBJS = $(SRCS:.cpp=.o)
-HDRS := jacobi.h mydata.h svd.h svd_tb.h gm_jacobi.h
+HDRS := jacobi.h svd_data.h svd.h svd_tb.h gm_jacobi.h
 
 .SUFFIXES: .cpp .cc .o
 $(TARGET): $(OBJS)

@@ -1,6 +1,18 @@
 #ifndef _MYDATA_H_
 #define _MYDATA_H_
 
+#define MAX_SIZE 25
+#define SVD_CELL_TYPE double
+
+#define SVD_INPUT_SIZE(__sz) (__sz * __sz)
+#define SVD_OUTPUT_SIZE(__sz) (3 * __sz * __sz)
+#define SVD_GET_S(__ptr, __sz) (__ptr)
+#define SVD_GET_U(__ptr, __sz) (__ptr + __sz * __sz)
+#define SVD_GET_V(__ptr, __sz) (__ptr + 2 * __sz * __sz)
+
+#define MAX_ERROR (0.001)
+
+#if 0
 #define MAX_SIZE 5
 
 class svd_token {
@@ -51,5 +63,6 @@ class svd_token {
 		return os;
 	}
 };
+#endif
 
 #endif
