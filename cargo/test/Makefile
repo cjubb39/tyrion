@@ -3,7 +3,7 @@ QSIM ?= ${CARGO}/qsim
 KSRC ?= $(QSIM)/linux
 CFLAGS := -O3
 CFLAGS += -m32 -static
-CFLAGS += -I../.. -I../../dev/src -I../
+CFLAGS += -I../.. -I../../svd/src -I../
 LIBS = -lm -lrt
 
 all: tarball

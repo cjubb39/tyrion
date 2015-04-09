@@ -4,7 +4,7 @@
 
 /sbin/insmod svd.ko
 /sbin/mdev -s
-./svd-mmap ./inout &
+./svd-mmap &
 wait
 /sbin/rmmod svd
 

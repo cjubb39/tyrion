@@ -79,7 +79,7 @@ static int svd_transfer(struct svd_device *svd,
 	int wait;
 
 	unsigned sz = access->size;
-	size_t in_buf_size = SVD_INPUT_SIZE(sz);
+	size_t in_buf_size = SVD_INPUT_SIZE_BYTE(sz);
 
 	INIT_COMPLETION(svd->completion);
 

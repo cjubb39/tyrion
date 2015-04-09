@@ -12,6 +12,8 @@
 #endif
 #endif /* __KERNEL__ */
 
+#include "svd_data.h"
+
 #define DRV_NAME  "svd"
 #define PFX    DRV_NAME ": "
 #define SVD_MAX_DEVICES  64
@@ -30,11 +32,11 @@
 #define SVD_SYNC_DEV_ID      0x02
 
 /* buffer sizes */
-#define SVD_INPUT_SIZE(__sz) (sizeof(u16) * __sz * __sz)
-#define SVD_OUTPUT_SIZE(__sz) (3 * sizeof(u16) * (__sz - 4) * (__sz - 4))
+#define SVD_INPUT_SIZE_BYTE(__sz) (sizeof(SVD_CELL_TYPE) * __sz * __sz)
+#define SVD_OUTPUT_SIZE_BYTE(__sz) (3 * sizeof(SVD_CELL_TYPE) * __sz * __sz)
 #define SVD_BUF_SIZE(__sz) \
-	(SVD_INPUT_SIZE(__sz) + \
-	 SVD_OUTPUT_SIZE(__sz))
+	(SVD_INPUT_SIZE_BYTE(__sz) + \
+	 SVD_OUTPUT_SIZE_BYTE(__sz))
 
 struct svd_access {
 	unsigned size;
