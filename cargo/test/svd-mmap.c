@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
 }
 #endif
 int main(int argc, char **argv) {
-	size_t sz = 3, buf_size;
+	size_t sz = 4, buf_size;
 	char *buf;
 
 	int fd, rc;
@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
 		exit(EXIT_FAILURE);
 	}
 
-	buf_size = SVD_BUF_SIZE(sz);
+	buf_size = SVD_BUF_SIZE_BYTE(sz);
 
 	buf = mmap(NULL, buf_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 	if (buf == MAP_FAILED) {
@@ -68,24 +68,25 @@ int main(int argc, char **argv) {
 		exit(EXIT_FAILURE);
 	}
 
-	memmove(buf, input_matrix, SVD_INPUT_SIZE_BYTE(sz));
+	//memmove(buf, input_matrix, SVD_INPUT_SIZE_BYTE(sz));
 
 	desc.size = sz;
 
-#if 0
 	rc = ioctl(fd, SVD_IOC_ACCESS, &desc);
 	if (rc < 0) {
 		perror("ioctl");
 		exit(EXIT_FAILURE);
 	}
+#if 0
 #endif
 
-	memmove(output_matrix, buf + SVD_INPUT_SIZE_BYTE(sz),
-			SVD_OUTPUT_SIZE_BYTE(sz));
+	//memmove(output_matrix, buf + SVD_INPUT_SIZE_BYTE(sz), SVD_OUTPUT_SIZE_BYTE(sz));
 
+#if 0
 	free(input_matrix);
 	free(output_matrix);
 	close(fd);
+#endif
 
 	return 0;
 }

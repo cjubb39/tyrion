@@ -57,9 +57,12 @@ void jacobi (double *a, int n, double *s, double *u, double *v) {
 	// able to pass them as double pointers: this is a known problem in C
 	a11=(int*)malloc(sizeof(int)*2); a12=(int*)malloc(sizeof(int)*2);
 	a21=(int*)malloc(sizeof(int)*2); a22=(int*)malloc(sizeof(int)*2);
+	fprintf(stderr, "malloc first run complete\n");
 
 	identify (u, n);
+	fprintf(stderr, "id1 run complete\n");
 	identify (v, n);
+	fprintf(stderr, "id2 run complete\n");
 
 	if (n == 1) {	// 1x1 matrix is already in SVD
 		s[0] = a[0];
@@ -67,6 +70,7 @@ void jacobi (double *a, int n, double *s, double *u, double *v) {
 	}
 
 	le = findLargestElement (a, n, &a11, &a12, &a21, &a22);
+	fprintf(stderr, "fle 1 complete\n");
 
 	int count = 0;
 	while (fabs (le.value) > 0.00000000000000000001) {
@@ -76,6 +80,7 @@ void jacobi (double *a, int n, double *s, double *u, double *v) {
 	}
 
 	reorder (a, n, u, v);
+	fprintf(stderr, "reorder complete\n");
 
 	// Copy over the singular values in a to s
 	for (i = 0; i < n; i++) {
@@ -83,7 +88,9 @@ void jacobi (double *a, int n, double *s, double *u, double *v) {
 		s [i] = a [(i * n) + j];
 	}
 
+	fprintf(stderr, "just free left\n");
 	free (a11); free (a12); free (a21); free (a22);
+	fprintf(stderr, "free complete\n");
 	return;
 }
 
@@ -248,6 +255,7 @@ void reorder (double *a, int dimension, double *u, double *v) {
 		// Reorder v
 			multiply (v, p, tempMatrix, dimension); copyMatrix (tempMatrix, v, dimension);
 	}
+
 	transpose (u, dimension);
 	transpose (v, dimension);
 	identify (p, dimension);

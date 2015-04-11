@@ -114,13 +114,13 @@ endif
 
 # objects depend on libraries we build so that header files can be found
 $(C_OBJECTS): %.o: %.c $(missing_dep_dirs) $(DEP_LIBS)
-	$(QUIET_CC)$(CC) -o $*.o -c $(dep_args) $(ALL_CFLAGS) $<
+	$(QUIET_CC)$(CC) -g3  -o $*.o -c $(dep_args) $(ALL_CFLAGS) $<
 
 $(CXX_OBJECTS): %.opp: %.cpp $(missing_dep_dirs) $(DEP_LIBS)
-	$(QUIET_CXX)$(CXX) $(ALL_CXXFLAGS) -o $*.opp -c $(dep_args) $<
+	$(QUIET_CXX)$(CXX) -g3 $(ALL_CXXFLAGS) -o $*.opp -c $(dep_args) $<
 
 cargo: $(CARGO_DEV_OBJS) $(CARGO_DEV_CXX_OBJS) $(ALL_LIBS) $(HDRS)
-	$(QUIET_LINK)$(CC) -o$@ $(LDFLAGS) $(CARGO)/libcargo.a $(filter %.opp,$^)  $(filter %.o,$^) $(LIBS)
+	$(QUIET_LINK)$(CC) -g3 -o$@ $(LDFLAGS) $(CARGO)/libcargo.a $(filter %.opp,$^)  $(filter %.o,$^) $(LIBS)
 
 
 run: cargo

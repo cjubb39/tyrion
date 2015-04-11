@@ -1,7 +1,7 @@
 CARGO ?= /usr/local/share/cargo
 QSIM ?= ${CARGO}/qsim
 KSRC ?= $(QSIM)/linux
-CFLAGS := -O3
+CFLAGS := -O0 -g3
 CFLAGS += -m32 -static
 CFLAGS += -I../.. -I../../svd/src -I../
 LIBS = -lm -lrt

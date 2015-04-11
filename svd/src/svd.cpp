@@ -76,10 +76,12 @@ LOAD_INPUT_WHILE:
 		}
 
 		// 4-phase handshake
+		cout << "DUT process start handshake starting" << endl;
 		input_done.write(true);
 		do { wait(); } while (!process_start.read());
 		input_done.write(false);
 		do { wait(); } while (process_start.read());
+		cout << "DUT process start handshake complete" << endl;
 	}
 }
 
@@ -107,6 +109,7 @@ STORE_OUTPUT_WHILE:
 
 		if (index == NUM_OUTPUT_MATRIX * rows * rows) {
 			// DEBAYER Done (need a reset)
+			cout << "DUT DEBAYER DONE" << endl;
 			svd_done.write(true);
 			do { wait(); } while(true);
 		}
@@ -210,8 +213,11 @@ DEBAYER_WHILE:
 		do { wait(); }
 		while (input_done.read());
 		process_start.write(false);
+		cout << "DUT process start handshake complete: PS" << endl;
 
+		cout << "about to jacobi start" << endl;
 		jacobi(matrix_in, rows, s, u, v);
+		cout << "jacobi finish" << endl;
 
 		// 4-phase handshake
 		process_done.write(true);

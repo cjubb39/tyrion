@@ -9,7 +9,7 @@
 
 #define NUM_OUTPUT_MATRIX 3
 
-//#define VERBOSE
+#define VERBOSE
 
 SC_MODULE(svd) {
 	sc_in<bool> clk;

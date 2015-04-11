@@ -34,7 +34,7 @@
 /* buffer sizes */
 #define SVD_INPUT_SIZE_BYTE(__sz) (sizeof(SVD_CELL_TYPE) * __sz * __sz)
 #define SVD_OUTPUT_SIZE_BYTE(__sz) (3 * sizeof(SVD_CELL_TYPE) * __sz * __sz)
-#define SVD_BUF_SIZE(__sz) \
+#define SVD_BUF_SIZE_BYTE(__sz) \
 	(SVD_INPUT_SIZE_BYTE(__sz) + \
 	 SVD_OUTPUT_SIZE_BYTE(__sz))
 

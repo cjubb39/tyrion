@@ -1,7 +1,7 @@
 #ifndef _MYDATA_H_
 #define _MYDATA_H_
 
-#define MAX_SIZE 25
+#define MAX_SIZE 5
 #define SVD_CELL_TYPE double
 
 #define SVD_INPUT_SIZE(__sz) (__sz * __sz)
