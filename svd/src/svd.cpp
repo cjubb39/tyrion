@@ -1,7 +1,5 @@
 #include "svd.h"
-
 #include "jacobi.h"
-
 
 void svd::config_svd()
 {
@@ -63,8 +61,10 @@ LOAD_INPUT_WHILE:
 		rd_request.write(false);
 		do { wait(); } while(rd_grant.read());
 
-		for (int i = 0; i < rows; ++i) {
-			for (int j = 0; j < rows; ++j) {
+		for (int i = 0; i < MAX_SIZE; ++i) {
+			if (i == rows) break;
+			for (int j = 0; j < MAX_SIZE; ++j) {
+				if (j == rows) break;
 				SVD_CELL_TYPE cell = bufdin.get();
 				matrix_in[i * rows + j] = cell;
 #ifdef VERBOSE
@@ -133,8 +133,10 @@ STORE_OUTPUT_WHILE:
 		wr_request.write(false);
 		do { wait(); } while(wr_grant.read());
 
-		for (int i = 0; i < rows; ++i) {
-			for (int j = 0; j < rows; ++j) {
+		for (int i = 0; i < MAX_SIZE; ++i) {
+			if (i == rows) break;
+			for (int j = 0; j < MAX_SIZE; ++j) {
+				if (j == rows) break;
 				SVD_CELL_TYPE cell = s[i * size + j];
 				bufdout.put(cell);
 #ifdef VERBOSE
@@ -157,10 +159,16 @@ STORE_OUTPUT_WHILE:
 		wr_request.write(false);
 		do { wait(); } while(wr_grant.read());
 
-		for (int i = 0; i < rows; ++i) {
-			for (int j = 0; j < rows; ++j) {
+		for (int i = 0; i < MAX_SIZE; ++i) {
+			if (i == rows) break;
+			for (int j = 0; j < MAX_SIZE; ++j) {
+				if (j == rows) break;
 				SVD_CELL_TYPE cell = u[i * size + j];
 				bufdout.put(cell);
+#ifdef VERBOSE
+				cout << "DUT PUT: (index, length, i, j, val)" << index << " " << length
+					<< " " << i << " " << j << " " << cell << endl;
+#endif
 				wait();
 			}
 		}
@@ -177,10 +185,16 @@ STORE_OUTPUT_WHILE:
 		wr_request.write(false);
 		do { wait(); } while(wr_grant.read());
 
-		for (int i = 0; i < rows; ++i) {
-			for (int j = 0; j < rows; ++j) {
+		for (int i = 0; i < MAX_SIZE; ++i) {
+			if (i == rows) break;
+			for (int j = 0; j < MAX_SIZE; ++j) {
+				if (j == rows) break;
 				SVD_CELL_TYPE cell = v[i * size + j];
 				bufdout.put(cell);
+#ifdef VERBOSE
+				cout << "DUT PUT: (index, length, i, j, val)" << index << " " << length
+					<< " " << i << " " << j << " " << cell << endl;
+#endif
 				wait();
 			}
 		}

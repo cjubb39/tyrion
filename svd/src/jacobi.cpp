@@ -5,11 +5,14 @@
 #include <math.h>
 #include <stdlib.h>
 #include "jacobi.h"
+#include "svd_data.h"
 
 void identify (double *matrix, int dimension) {
 	int row, col;
-	for (row = 0; row < dimension; row++) {
-		for (col = 0; col < dimension; col++) {
+	for (row = 0; row < MAX_SIZE; row++) {
+		if (row == dimension) break;
+		for (col = 0; col < MAX_SIZE; col++) {
+			if (col == dimension) break;
 			// Elements on diagonal =1
 			if (col == row) {matrix [(row * dimension) + col] = 1.0;}
 			// ... all others 0
@@ -21,9 +24,12 @@ void identify (double *matrix, int dimension) {
 
 void copyMatrix (double *a, double *b, int dimension) {
 	int row, col;
-	for (row = 0; row < dimension; row++) {
-		for (col = 0; col < dimension; col++)
+	for (row = 0; row < MAX_SIZE; row++) {
+		if (row == dimension) break;
+		for (col = 0; col < MAX_SIZE; col++) {
+			if (col == dimension) break;
 			b [(row * dimension) + col] = a [(row * dimension) + col];
+		}
 	}
 	return;
 }
@@ -33,10 +39,16 @@ void multiply (double *left, double *right, double *result, int dimension) {
 	int leftCol, rightCol; // same as above but for columns
 	double tempResult = 0;
 
-	for (leftRow = 0; leftRow < dimension; leftRow++) {
-		for (rightCol = 0; rightCol < dimension; rightCol++) {
-			for (leftCol = rightRow = 0; leftCol < dimension; leftCol++, rightRow++)
+	for (leftRow = 0; leftRow < MAX_SIZE; leftRow++) {
+		if (leftRow == dimension) break;
+		for (rightCol = 0; rightCol < MAX_SIZE; rightCol++) {
+			if (rightCol == dimension) break;
+
+			for (leftCol = rightRow = 0; leftCol < MAX_SIZE;
+					leftCol++, rightRow++) {
+				if (leftCol == dimension) break;
 				tempResult += left[(leftRow * dimension) + leftCol] * right[(rightRow * dimension) + rightCol];
+			}
 			result [(leftRow * dimension) + rightCol] = tempResult;
 			tempResult = 0;
 		}
@@ -73,6 +85,7 @@ void jacobi (double *a, int n, double *s, double *u, double *v) {
 	fprintf(stderr, "fle 1 complete\n");
 
 	int count = 0;
+	/* FIXME This loop may not be synthesizable */
 	while (fabs (le.value) > 0.00000000000000000001) {
 		count++;
 		rotate (a, n, u, v, a11, a12, a21, a22);
@@ -83,7 +96,8 @@ void jacobi (double *a, int n, double *s, double *u, double *v) {
 	fprintf(stderr, "reorder complete\n");
 
 	// Copy over the singular values in a to s
-	for (i = 0; i < n; i++) {
+	for (i = 0; i < MAX_SIZE; i++) {
+		if (i == n) break;
 		j = i;
 		s [i] = a [(i * n) + j];
 	}
@@ -169,8 +183,10 @@ LargestElement findLargestElement (double *matrix, int dimension, int **a11, int
 
 	// Populate leArray such that the entry at index i contains information
 	// about the largest element of row i
-	for (i = 0; i < dimension; i++) {
-		for (j = 0; j < dimension; j++) {
+	for (i = 0; i < MAX_SIZE; i++) {
+		if (i == dimension) break;
+		for (j = 0; j < MAX_SIZE; j++) {
+			if (j == dimension) break;
 			// We are looking for the largest OFF-DIAGONAL element
 			if (j == i)
 				continue;
@@ -189,7 +205,8 @@ LargestElement findLargestElement (double *matrix, int dimension, int **a11, int
 	leTemp.rowNum = leTemp.colNum = -1;
 	// Iterate over leArray and find the largest element in the matrix as a
 	// whole
-	for (i = 0; i < dimension; i++) {
+	for (i = 0; i < MAX_SIZE; i++) {
+		if (i == dimension) break;
 		if (fabs (leArray [i].value) > fabs (leTemp.value)) {
 			leTemp.value = leArray [i].value;
 			leTemp.rowNum = leArray [i].rowNum;
@@ -216,8 +233,10 @@ LargestElement findLargestElement (double *matrix, int dimension, int **a11, int
 void transpose (double *matrix, int dimension) {
 	double temp;
 	int row, col;
-	for (row = 0; row < dimension; row++) {
-		for (col = (row + 1); col < dimension; col++) {
+	for (row = 0; row < MAX_SIZE; row++) {
+		if (row == dimension) break;
+		for (col = (row + 1); col < MAX_SIZE; col++) {
+			if (col == dimension) break;
 			if (col == row) {continue;} // skip diagonal elements
 			temp = matrix [(row * dimension) + col];
 			matrix [(row * dimension) + col] = matrix [(col * dimension) + row];
@@ -236,10 +255,12 @@ void reorder (double *a, int dimension, double *u, double *v) {
 	p = (double *) malloc (sizeof (double) * (dimension * dimension));
 	tempMatrix = (double *) malloc (sizeof (double) * (dimension * dimension));
 
-	for (x = 0; x < dimension; x++) {
+	for (x = 0; x < MAX_SIZE; x++) {
+		if (x == dimension) break;
 		temp = 0.0;
 		identify (p, dimension);
-		for (row = x; row < dimension; row++) {
+		for (row = x; row < MAX_SIZE; row++) {
+			if (row == dimension) break;
 			col = row;
 			if (fabs (a [row * dimension + col]) > fabs (temp)) {
 				temp = a [row * dimension + col];
@@ -259,7 +280,8 @@ void reorder (double *a, int dimension, double *u, double *v) {
 	transpose (u, dimension);
 	transpose (v, dimension);
 	identify (p, dimension);
-	for (row = 0; row < dimension; row++) {
+	for (row = 0; row < MAX_SIZE; row++) {
+		if (row == dimension) break;
 		col = row;
 		if (a [row * dimension + col] < 0)
 			p [row * dimension + col] = -1.0;
@@ -275,7 +297,8 @@ void reorder (double *a, int dimension, double *u, double *v) {
 // Swap row a with row b of matrix m
 void swapRows (double *m, int a, int b, int dimension) {
 	double temp;
-	for (int col = 0; col < dimension; col++) {
+	for (int col = 0; col < MAX_SIZE; col++) {
+		if (col == dimension) break;
 		temp = m [a * dimension + col];
 		m [a * dimension + col] = m [b * dimension + col];
 		m [b * dimension + col] = temp;

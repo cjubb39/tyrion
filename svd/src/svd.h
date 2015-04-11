@@ -2,14 +2,14 @@
 #define _SVD_H_
 
 #include "systemc.h"
-//#include <ctos_flex_channels.h>
-#include <flex_channels.hpp>
+#include <ctos_flex_channels.h>
+//#include <flex_channels.hpp>
 
 #include "svd_data.h"
 
 #define NUM_OUTPUT_MATRIX 3
 
-#define VERBOSE
+//#define VERBOSE
 
 SC_MODULE(svd) {
 	sc_in<bool> clk;
