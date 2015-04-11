@@ -1,0 +1,15 @@
+#!/bin/bash
+
+export CARGO=/usr/local/share/cargo
+export QSIM=$CARGO/qsim
+
+if [ $# -eq 0 ]; then
+  echo -e "Usage:\n\t$0 <design_name>"
+  exit 1
+fi
+
+DESIGN=$1
+CMD="./cargo -b test/$DESIGN.tar \
+        -s $CARGO/qsim/tools/qsim-ff/state.1 \
+        -c test/config.lua"
+echo $CMD && $CMD

@@ -21,9 +21,9 @@ INCDIR = -I../src -I../tb -I$(SYSTEMC)/include -I$(TLM)/include/tlm -I$(DRAMSIM)
 
 TARGET := svd
 VPATH := ../src:../tb
-SRCS := jacobi.cpp svd.cpp svd_tb.cpp sc_main.cpp
+SRCS := jacobi.cpp svd.cpp svd_tb.cpp sc_main.cpp gm_jacobi.cpp
 OBJS = $(SRCS:.cpp=.o)
-HDRS := jacobi.h mydata.h svd.h svd_tb.h
+HDRS := jacobi.h svd_data.h svd.h svd_tb.h gm_jacobi.h
 
 .SUFFIXES: .cpp .cc .o
 $(TARGET): $(OBJS)

@@ -1,0 +1,3 @@
+obj-m := svd.o
+
+ccflags-y := -I$(QSIM)/include
