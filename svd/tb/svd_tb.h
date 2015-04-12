@@ -17,16 +17,6 @@ SC_MODULE(svd_tb) {
 	sc_in<bool> rst;
 	sc_out<bool> rst_dut;
 
-#if 0
-	sc_out<svd_token> data_in; 
-	sc_out<bool> req_in; 
-	sc_in<bool> grant_in; 
-
-	sc_in<svd_token> data_out; 
-	sc_in<bool> req_out; 
-	sc_out<bool> grant_out; 
-#endif
-	
 	// DMA requests interface from memory to device
 	sc_in<unsigned>   rd_index;     // array index (offset from starting address)
 	sc_in<unsigned>   rd_length;    // burst size (in words)
@@ -50,16 +40,9 @@ SC_MODULE(svd_tb) {
 	// computation complete. Written by store_output
 	sc_in<bool> svd_done;
 
-#if 0
-	void send(void);
-	void recv(void);
-#endif
 	void dmac(void);
 
-	SC_CTOR(svd_tb)
-		: bufdin("bufdin-tb")
-		, bufdout("bufdout-tb")
-	{
+	SC_CTOR(svd_tb) {
 		SC_CTHREAD(dmac, clk.pos()); 
 		reset_signal_is(rst, false);
 

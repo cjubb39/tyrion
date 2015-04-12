@@ -21,16 +21,6 @@ SC_MODULE(svd) {
 	sc_in<bool> clk;
 	sc_in<bool> rst;
 
-#if 0
-	sc_in<bool>        data_in_req;
-	sc_out<bool>       data_in_grant;
-	sc_in<svd_token>   data_in;
-
-	sc_out<bool>        data_out_req;
-	sc_in<bool>         data_out_grant;
-	sc_out<svd_token>   data_out;
-#endif
-
 	// DMA requests interface from memory to device
 	sc_out<unsigned> rd_index;   // array index (offset from base address)
 	sc_out<unsigned> rd_length;  // burst size
@@ -89,7 +79,6 @@ SC_MODULE(svd) {
 	sc_signal<bool>     output_start;
 
 	/* SVD functions */
-
 	void multiply (double *left, double *right, double *result, int dimension);
 	void jacobi (double *a, int n, double *s, double *u, double *v);
 	LargestElement findLargestElement (double *matrix, int dimension, int *a11, int *a12, int *a21, int *a22);
@@ -111,7 +100,7 @@ SC_MODULE(svd) {
 
 
 	SVD_CELL_TYPE matrix_in[MAX_SIZE * MAX_SIZE];
-	
+
 	SVD_CELL_TYPE s[MAX_SIZE * MAX_SIZE];
 	SVD_CELL_TYPE u[MAX_SIZE * MAX_SIZE];
 	SVD_CELL_TYPE v[MAX_SIZE * MAX_SIZE];

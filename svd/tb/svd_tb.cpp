@@ -119,7 +119,7 @@ void svd_tb::dmac(void) {
 	print_matrix(SVD_GET_U(golden_matrix, mat_size), mat_size);
 	print_matrix(SVD_GET_V(golden_matrix, mat_size), mat_size);
 	cout << endl;
-	
+
 	cout << "Hardware: " << endl;
 	print_matrix(SVD_GET_S(output_matrix, mat_size), mat_size);
 	print_matrix(SVD_GET_U(output_matrix, mat_size), mat_size);

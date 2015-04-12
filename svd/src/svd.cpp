@@ -131,7 +131,6 @@ void svd::rotate (double *a, int dimension, double *u, double *v, int *x11, int 
 	//		| cosA	sinA |
 	//		| -sinA	cosA |
 	//
-	/* Ui statically created */
 	identify (Ui, dimension);
 	Ui [x11[0] * dimension + x11[1]] = Ui [x22[0] * dimension + x22[1]] = cosA;
 	Ui [x12[0] * dimension + x12[1]] = sinA;
@@ -142,7 +141,6 @@ void svd::rotate (double *a, int dimension, double *u, double *v, int *x11, int 
 	//		| cosB	-sinB |
 	//		| sinB	 cosB |
 	//
-	/* Vi statically created */
 	identify (Vi, dimension);
 	Vi [x11[0] * dimension + x11[1]] = Vi [x22[0] * dimension + x22[1]] = cosB;
 	Vi [x12[0] * dimension + x12[1]] = (-1.0) * sinB;
@@ -150,7 +148,6 @@ void svd::rotate (double *a, int dimension, double *u, double *v, int *x11, int 
 
 	// Rotate a
 	// First on the left with Ui
-	/* tempResult statically created */
 	multiply (Ui, a, tempResult, dimension);
 	copyMatrix (tempResult, a, dimension);
 	// Then on the right with Vi
@@ -248,9 +245,6 @@ void svd::reorder (double *a, int dimension, double *u, double *v) {
 	int row, col, x, largestElementRow;
 	double temp; // stores the largest singular value
 
-	/* p statically allocated */
-	/* tempMatrix statically allocated */
-
 	for (x = 0; x < MAX_SIZE; x++) {
 		if (x == dimension) break;
 		temp = 0.0;
@@ -270,7 +264,7 @@ void svd::reorder (double *a, int dimension, double *u, double *v) {
 		// Reorder u
 		multiply (p, u, tempMatrix, dimension); copyMatrix (tempMatrix, u, dimension);
 		// Reorder v
-			multiply (v, p, tempMatrix, dimension); copyMatrix (tempMatrix, v, dimension);
+		multiply (v, p, tempMatrix, dimension); copyMatrix (tempMatrix, v, dimension);
 	}
 
 	transpose (u, dimension);
@@ -447,7 +441,7 @@ STORE_OUTPUT_WHILE:
 				wait();
 			}
 		}
-		
+
 
 		/* U matrix */
 		// Send DMA request
@@ -473,7 +467,7 @@ STORE_OUTPUT_WHILE:
 				wait();
 			}
 		}
-		
+
 
 		/* V matrix */
 		// Send DMA request
