@@ -1,7 +1,3 @@
-#include <stdio.h>
-//#include <math.h>
-#include <stdlib.h>
-
 #include "svd.h"
 
 /* TODO generalize to CELL_TYPE */
