@@ -55,7 +55,12 @@ void svd_tb::dmac(void) {
 			rst_dut.write(0);
 
 			for (int i = 0; i < SVD_OUTPUT_SIZE(mat_size); ++i) {
-				mismatches += !(output_matrix[i] - golden_matrix[i] < MAX_ERROR);
+				SVD_CELL_TYPE diff = output_matrix[i] - golden_matrix[i];
+				if (diff < 0) {
+					diff *= -1;
+				}
+
+				mismatches += !(diff < MAX_ERROR);
 			}
 
 			/* exit loop now */

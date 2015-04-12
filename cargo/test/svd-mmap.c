@@ -108,7 +108,11 @@ int main(int argc, char **argv) {
 	memmove(output_matrix, buf + SVD_INPUT_SIZE_BYTE(sz), SVD_OUTPUT_SIZE_BYTE(sz));
 
 	for (i = 0; i < SVD_OUTPUT_SIZE(sz); ++i) {
-			mismatches += (output_matrix[i] == golden_matrix[i]);
+		SVD_CELL_TYPE diff = output_matrix[i] - golden_matrix[i];
+		if (diff < 0) {
+			diff *= -1;
+		}
+		mismatches += !(diff < MAX_ERROR);
 	}
 
 	if (mismatches) {

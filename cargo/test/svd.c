@@ -81,21 +81,13 @@ static int svd_transfer(struct svd_device *svd, struct svd_file *file, const
 
 	INIT_COMPLETION(svd->completion);
 
-	printk(KERN_EMERG "transfer about to check access\n");
 	if (!svd_access_ok(svd, access))
 		return -EINVAL;
-	printk(KERN_EMERG "transfer access ok\n");
 
-	printk(KERN_EMERG "start iowrite block");
 	iowrite32(file->dma_handle, svd->iomem + SVD_REG_SRC);
-	printk(KERN_EMERG "1 iowrite block");
 	iowrite32(file->dma_handle + in_buf_size, svd->iomem + SVD_REG_DST);
-	printk(KERN_EMERG "2 iowrite block");
-	printk(KERN_EMERG "access: %p; size: %d\n", access, access->size);
 	iowrite32(access->size, svd->iomem + SVD_REG_SIZE);
-	printk(KERN_EMERG "3 iowrite block");
 	iowrite32(0x1, svd->iomem + SVD_REG_CMD);
-	printk(KERN_EMERG "end iowrite block");
 
 	wait = wait_for_completion_interruptible(&svd->completion);
 	if (wait < 0)
@@ -107,24 +99,17 @@ static int svd_access_ioctl( struct svd_device *svd, struct svd_file *file,
 		void __user *arg) {
 	struct svd_access access;
 
-	printk(KERN_EMERG "about to copy from user\n");
 	if (copy_from_user(&access, arg, sizeof(access)))
 		return -EFAULT;
-	printk(KERN_EMERG "copied from user\n");
 
-	printk(KERN_EMERG "about to check access\n");
 	if (!svd_access_ok(svd, &access))
 		return -EINVAL;
-	printk(KERN_EMERG "access ok\n");
 
-	printk(KERN_EMERG "about to lock\n");
 	if(mutex_lock_interruptible(&svd->lock))
 		return -EINTR;
-	printk(KERN_EMERG "locked\n");
 
 	svd_transfer(svd, file, &access);
 	mutex_unlock(&svd->lock);
-	printk(KERN_EMERG "unlocked and transfered\n");
 
 	return 0;
 }
@@ -138,7 +123,6 @@ static long svd_do_ioctl(
 
 	switch (cm) {
 		case SVD_IOC_ACCESS:
-			printk(KERN_EMERG "SVD IOC ACCESS\n");
 			return svd_access_ioctl(svd, priv, arg);
 		default:
 			return -ENOTTY;

@@ -68,12 +68,9 @@ void svd::jacobi (double *a, int n, double *s, double *u, double *v) {
 
 	// I could have statically allocated these but I would not have been
 	// able to pass them as double pointers: this is a known problem in C
-	fprintf(stderr, "malloc first run complete\n");
 
 	identify (u, n);
-	fprintf(stderr, "id1 run complete\n");
 	identify (v, n);
-	fprintf(stderr, "id2 run complete\n");
 
 	if (n == 1) {	// 1x1 matrix is already in SVD
 		s[0] = a[0];
@@ -81,7 +78,6 @@ void svd::jacobi (double *a, int n, double *s, double *u, double *v) {
 	}
 
 	le = findLargestElement (a, n, a11, a12, a21, a22);
-	fprintf(stderr, "fle 1 complete\n");
 
 	int count = 0;
 	/* FIXME This loop may not be synthesizable */
@@ -92,7 +88,6 @@ void svd::jacobi (double *a, int n, double *s, double *u, double *v) {
 	}
 
 	reorder (a, n, u, v);
-	fprintf(stderr, "reorder complete\n");
 
 	// Copy over the singular values in a to s
 	for (i = 0; i < MAX_SIZE; i++) {
@@ -101,8 +96,6 @@ void svd::jacobi (double *a, int n, double *s, double *u, double *v) {
 		s [i] = a [(i * n) + j];
 	}
 
-	fprintf(stderr, "just free left\n");
-	fprintf(stderr, "free complete\n");
 	return;
 }
 
@@ -371,12 +364,10 @@ LOAD_INPUT_WHILE:
 		}
 
 		// 4-phase handshake
-		cout << "DUT process start handshake starting" << endl;
 		input_done.write(true);
 		do { wait(); } while (!process_start.read());
 		input_done.write(false);
 		do { wait(); } while (process_start.read());
-		cout << "DUT process start handshake complete" << endl;
 	}
 }
 
@@ -404,7 +395,6 @@ STORE_OUTPUT_WHILE:
 
 		if (index == NUM_OUTPUT_MATRIX * rows * rows) {
 			// DEBAYER Done (need a reset)
-			cout << "DUT DEBAYER DONE" << endl;
 			svd_done.write(true);
 			do { wait(); } while(true);
 		}
@@ -522,11 +512,8 @@ DEBAYER_WHILE:
 		do { wait(); }
 		while (input_done.read());
 		process_start.write(false);
-		cout << "DUT process start handshake complete: PS" << endl;
 
-		cout << "about to jacobi start" << endl;
 		jacobi(matrix_in, rows, s, u, v);
-		cout << "jacobi finish" << endl;
 
 		// 4-phase handshake
 		process_done.write(true);

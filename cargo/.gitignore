@@ -3,7 +3,9 @@
 *.opp
 *.ko
 *.data
+*.data.old
 *.power
+*.power.old
 cargo
 svd-mmap
 *.tar
