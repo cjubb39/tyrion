@@ -13,6 +13,10 @@
 //#define VERBOSE
 
 SC_MODULE(svd_tb) {
+	sc_in<bool> clk;
+	sc_in<bool> rst;
+	sc_out<bool> rst_dut;
+
 #if 0
 	sc_out<svd_token> data_in; 
 	sc_out<bool> req_in; 
