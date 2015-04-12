@@ -18,6 +18,7 @@
 
 #include "svd.h"
 #include "svd_data.h"
+#include "gm_jacobi.h"
 
 //#define SVD_OUTPUT_LENGTH(__sz) (SVD_OUTPUT_SIZE(__sz) / sizeof(SVD_CELL_TYPE))
 
@@ -41,18 +42,44 @@ int main(int argc, char *argv[]) {
 	memmove(result, buf + SVD_INPUT_SIZE(sz)/ sizeof(u16), SVD_OUTPUT_SIZE(sz));
 }
 #endif
+void compute_golden_model(SVD_CELL_TYPE *golden_input_matrix,
+		SVD_CELL_TYPE *golden_matrix, int mat_size) {
+	gm_jacobi(golden_input_matrix, mat_size,
+			SVD_GET_S(golden_matrix, mat_size),
+			SVD_GET_U(golden_matrix, mat_size),
+			SVD_GET_V(golden_matrix, mat_size));
+}
+
 int main(int argc, char **argv) {
 	size_t sz = 4, buf_size;
 	char *buf;
 
 	int fd, rc;
 	struct svd_access desc;
+	
+	SVD_CELL_TYPE *input_matrix, *golden_input_matrix;
+	SVD_CELL_TYPE *output_matrix, *golden_matrix;
 
-	SVD_CELL_TYPE *input_matrix;
-	SVD_CELL_TYPE *output_matrix;
+	unsigned long mismatches = 0;
+	size_t i, j;
+
+	srand(time(NULL));
 
 	input_matrix = malloc(sizeof(*input_matrix) * SVD_INPUT_SIZE(sz));
+	golden_input_matrix = malloc(sizeof(*golden_input_matrix) * SVD_INPUT_SIZE(sz));
 	output_matrix = malloc(sizeof(*output_matrix) * SVD_OUTPUT_SIZE(sz));
+	golden_matrix = malloc(sizeof(*golden_matrix) * SVD_OUTPUT_SIZE(sz));
+
+	for (i = 0; i < sz; ++i) {
+		for (j = 0; j < sz; ++j) {
+			input_matrix[i * sz + j] = rand();
+		}
+	}
+
+	memcpy(golden_input_matrix, input_matrix, sizeof(*input_matrix) *
+			SVD_INPUT_SIZE(sz));
+
+	compute_golden_model(golden_input_matrix, golden_matrix, (int) sz);
 
 	fd = open(devname, O_RDWR, 0);
 	if (fd < 0) {
@@ -68,7 +95,7 @@ int main(int argc, char **argv) {
 		exit(EXIT_FAILURE);
 	}
 
-	//memmove(buf, input_matrix, SVD_INPUT_SIZE_BYTE(sz));
+	memmove(buf, input_matrix, SVD_INPUT_SIZE_BYTE(sz));
 
 	desc.size = sz;
 
@@ -77,16 +104,22 @@ int main(int argc, char **argv) {
 		perror("ioctl");
 		exit(EXIT_FAILURE);
 	}
-#if 0
-#endif
 
-	//memmove(output_matrix, buf + SVD_INPUT_SIZE_BYTE(sz), SVD_OUTPUT_SIZE_BYTE(sz));
+	memmove(output_matrix, buf + SVD_INPUT_SIZE_BYTE(sz), SVD_OUTPUT_SIZE_BYTE(sz));
 
-#if 0
+	for (i = 0; i < SVD_OUTPUT_SIZE(sz); ++i) {
+			mismatches += (output_matrix[i] == golden_matrix[i]);
+	}
+
+	if (mismatches) {
+		printf("Simulation failed with %lu errors\n", mismatches);
+	} else {
+		printf("Simulation success! No errors\n");
+	}
+
 	free(input_matrix);
 	free(output_matrix);
 	close(fd);
-#endif
 
 	return 0;
 }

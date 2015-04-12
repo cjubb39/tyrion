@@ -267,7 +267,8 @@ void gm_reorder (double *a, int dimension, double *u, double *v) {
 // Swap row a with row b of matrix m
 void gm_swapRows (double *m, int a, int b, int dimension) {
 	double temp;
-	for (int col = 0; col < dimension; col++) {
+	int col;
+	for (col = 0; col < dimension; col++) {
 		temp = m [a * dimension + col];
 		m [a * dimension + col] = m [b * dimension + col];
 		m [b * dimension + col] = temp;

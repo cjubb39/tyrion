@@ -14,7 +14,7 @@ ifeq ($(KSRC),)
 endif
 .PHONY: check
 
-svd-mmap: svd-mmap.c
+svd-mmap: svd-mmap.c gm_jacobi.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 
 tarball: svd.tar

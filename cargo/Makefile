@@ -4,8 +4,8 @@ CARGO ?= /usr/local/share/cargo
 QSIM ?= ${CARGO}/qsim
 
 SVD_OBJS = svd-sync.o device-list.o
-SVD_CXX_OBJS = svd.opp svd-main.opp svd-wrapper.opp jacobi.opp
-HDRS = svd.h  svd-wrapper.hpp  svd-sync.h svd_data.h jacobi.h
+SVD_CXX_OBJS = svd.opp svd-main.opp svd-wrapper.opp
+HDRS = svd.h  svd-wrapper.hpp  svd-sync.h svd_data.h
 
 SVD_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 CARGO_DEV_OBJS += $(addprefix $(SVD_DIR),$(SVD_OBJS))

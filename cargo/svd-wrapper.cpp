@@ -47,7 +47,6 @@ void svd_wrapper::iowrite32(const struct io_req *req, struct io_rsp *rsp)
 
 	switch (reg) {
 		case SVD_REG_CMD:
-			cout << "SVD_REG_CMD: " << req->val << "; STATUS REG: " << status_reg << endl;
     	if (req->val == 1) {
       	BUG_ON((status_reg != 0));
 				conf_done.write(true);
@@ -57,7 +56,6 @@ void svd_wrapper::iowrite32(const struct io_req *req, struct io_rsp *rsp)
 		  	BUG();
 			}
 			status_reg = req->val;
-			cout << "SVD REG CMD written" << endl;
 			break;
 		case SVD_REG_SRC:
 			dma_phys_addr_src = req->val;
@@ -66,9 +64,7 @@ void svd_wrapper::iowrite32(const struct io_req *req, struct io_rsp *rsp)
 			dma_phys_addr_dst = req->val;
 			break;
 		case SVD_REG_SIZE:
-			cout << "SVD_REG_SIZE write: " << req->val << endl;
 			conf_size.write(req->val);
-			cout << "SVD_REG_SIZE written" << endl;
 			break;
 		default:
 			BUG();
@@ -78,8 +74,6 @@ void svd_wrapper::iowrite32(const struct io_req *req, struct io_rsp *rsp)
 void svd_wrapper::copy_from_dram(u64 index, unsigned length) {
 	obj_dbg(&svd->dev.obj, "%s\n", __func__);
 	
-	cout << "WRAP CFD i, l: " << index << "; " << length << endl;
-
 	/* byte address */
 	out_phys_addr.put(dma_phys_addr_src +
 			(index * sizeof(SVD_CELL_TYPE /* DMA token */)));
@@ -105,11 +99,8 @@ void svd_wrapper::start() {
 
 	for (;;) {
 		start_fifo.get();
-		cout << "start sig from fifo" << endl;
 		obj_dbg(&svd->dev.obj, "CTL start\n");
-		cout << "about to drive" << endl;
 		drive();
-		cout << "driven" << endl;
 		obj_dbg(&svd->dev.obj, "SVD done\n");
 	}
 }
@@ -120,10 +111,8 @@ void svd_wrapper::drive()
 		do {
 			wait();
 		} while (!rd_request.read() && !wr_request.read() && !svd_done.read());
-		cout << "REQUEST" << endl;
 		
 		if (svd_done.read()) {
-			cout << "SVD DONE" << endl;
 			rst_dut.write(false);
 			wait();
 			rst_dut.write(true);
@@ -137,8 +126,6 @@ void svd_wrapper::drive()
 			unsigned index = rd_index.read();
 			unsigned length = rd_length.read();
 
-			cout << "WRAP RD i, l: " << index << "; " << length << endl;
-
 			rd_tran_cnt++;
 			rd_byte += length * sizeof(SVD_CELL_TYPE);
 
@@ -149,15 +136,12 @@ void svd_wrapper::drive()
 			rd_grant.write(false);
 			wait();
 			
-			cout << "about to copy from dram" << endl;
 			copy_from_dram((u64) index, length);
-			cout << "copied from dram" << endl;
 
 		} else {
 			// WRITE REQUEST
 			unsigned index = wr_index.read();
 			unsigned length = wr_length.read();
-			cout << "WRAP WR i, l: " << index << "; " << length << endl;
 			wr_tran_cnt++;
 			wr_byte += length * sizeof(SVD_CELL_TYPE);
 
@@ -168,9 +152,7 @@ void svd_wrapper::drive()
 			wr_grant.write(false);
 			wait();
 
-			cout << "about to copy from dram" << endl;
 			copy_to_dram((u64) index, length);
-			cout << "copied to dram" << endl;
 		}
 	}
 }
@@ -199,11 +181,8 @@ void svd_wrapper::io()
 		rsp.size = req.size;
 
 		if (req.write){ 
-			cout << "IO WRITE req" << endl;
 			iowrite32(&req, &rsp);
-		}
-		else {
-			cout << "IO READ req" << endl;
+		} else {
 			ioread32(&req, &rsp);
 		}
 		if (unlikely(io_send_rsp(req.rsp_chan, &rsp)))
