@@ -6,8 +6,9 @@ void svd_tb::fill_buf() {
 	//real basic matrix
 	int i = 0; 
 	for(; i < SVD_INPUT_SIZE(mat_size); i++) {
-		input_matrix[i] = i; 
-		golden_input_matrix[i] = i;
+		SVD_CELL_TYPE tmp = rand();
+		input_matrix[i] = tmp;
+		golden_input_matrix[i] = tmp;
 	}
 }
 
@@ -29,6 +30,7 @@ void print_matrix(double *mat, int size) {
 
 void svd_tb::dmac(void) {
 	// RESET
+	srand(time(NULL));
 	rst_dut.write(0);
 	rd_grant.write(0);
 	wr_grant.write(0);
