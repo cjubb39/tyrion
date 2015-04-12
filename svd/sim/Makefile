@@ -21,9 +21,9 @@ INCDIR = -I../src -I../tb -I$(SYSTEMC)/include -I$(TLM)/include/tlm -I$(DRAMSIM)
 
 TARGET := svd
 VPATH := ../src:../tb
-SRCS := jacobi.cpp svd.cpp svd_tb.cpp sc_main.cpp gm_jacobi.cpp
+SRCS := svd.cpp svd_tb.cpp sc_main.cpp gm_jacobi.cpp
 OBJS = $(SRCS:.cpp=.o)
-HDRS := jacobi.h svd_data.h svd.h svd_tb.h gm_jacobi.h
+HDRS := svd_data.h svd.h svd_tb.h gm_jacobi.h
 
 .SUFFIXES: .cpp .cc .o
 $(TARGET): $(OBJS)
@@ -49,6 +49,7 @@ distclean: clean
 	rm -rf *.log
 
 run: $(TARGET)
+	rm -f core
 	./$(TARGET)
 
 wave:

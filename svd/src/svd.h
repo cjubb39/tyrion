@@ -11,6 +11,12 @@
 
 //#define VERBOSE
 
+typedef struct {
+	double value;
+	int rowNum;
+	int colNum;
+} LargestElement;
+
 SC_MODULE(svd) {
 	sc_in<bool> clk;
 	sc_in<bool> rst;
@@ -81,6 +87,28 @@ SC_MODULE(svd) {
 
 	//Written by store_output
 	sc_signal<bool>     output_start;
+
+	/* SVD functions */
+
+	void multiply (double *left, double *right, double *result, int dimension);
+	void jacobi (double *a, int n, double *s, double *u, double *v);
+	LargestElement findLargestElement (double *matrix, int dimension, int *a11, int *a12, int *a21, int *a22);
+	void copyMatrix (double *a, double *b, int dimension);
+	void identify (double *matrix, int dimension);
+	void rotate (double *a, int dimension, double *u, double *v, int *x11, int *x12, int *x21, int *x22);
+	void transpose (double *matrix, int dimension);
+	void reorder (double *a, int dimension, double *u, double *v);
+	void swapRows (double *m, int a, int b, int dimension);
+
+	/* scratchpad matrices */
+	/* TODO generalize type to synthesizeable */
+	double Ui[MAX_SIZE * MAX_SIZE];
+	double Vi[MAX_SIZE * MAX_SIZE];
+	double tempResult[MAX_SIZE * MAX_SIZE];
+	double tempMatrix[MAX_SIZE * MAX_SIZE];
+	double p[MAX_SIZE * MAX_SIZE];
+	LargestElement leArray[MAX_SIZE];
+
 
 	SVD_CELL_TYPE matrix_in[MAX_SIZE * MAX_SIZE];
 	
