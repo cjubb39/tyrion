@@ -1,68 +1,39 @@
 #ifndef _MYDATA_H_
 #define _MYDATA_H_
 
-#define MAX_SIZE 5
+#define SC_INCLUDE_FX
+#include <systemc.h>
+
+//#define REAL_FLOAT
+//#define SC_FIXED_POINT_FAST
+//#define SC_FIXED_POINT
+#define CTOS_SC_FIXED_POINT
+
+#define MAX_SIZE 25
+
+#if defined(REAL_FLOAT)
 #define SVD_CELL_TYPE double
+#elif defined(SC_FIXED_POINT_FAST)
+#define SC_FIXED_TYPE sc_dt::sc_fixed_fast
+#elif defined(SC_FIXED_POINT)
+#define SC_FIXED_TYPE sc_dt::sc_fixed
+#elif defined(CTOS_SC_FIXED_POINT)
+#include <ctos_fx.h>
+#define SC_FIXED_TYPE ctos_sc_dt::sc_fixed
+#else
+#error "specify fixed or floating point type"
+#endif
+
+#ifndef REAL_FLOAT
+#define WL 128
+#define IWL 32
+#define SVD_CELL_TYPE SC_FIXED_TYPE<WL,IWL>
+#endif
 
 #define SVD_INPUT_SIZE(__sz) (__sz * __sz)
 #define SVD_OUTPUT_SIZE(__sz) (3 * __sz * __sz)
 #define SVD_GET_S(__ptr, __sz) (__ptr)
 #define SVD_GET_U(__ptr, __sz) (__ptr + __sz * __sz)
 #define SVD_GET_V(__ptr, __sz) (__ptr + 2 * __sz * __sz)
-
-#define MAX_ERROR (0.001)
-
-#if 0
-#define MAX_SIZE 5
-
-class svd_token {
-	public:
-		double matrix[MAX_SIZE * MAX_SIZE]; /* row major form */
-		unsigned size; /* of one dimension */
-
-		svd_token() {
-			size = 0;
-		}
-
-		svd_token(const svd_token &rhs) {
-			size = rhs.size;
-
-			int i, j;
-			for (i = 0; i < size; ++i) {
-				for (j = 0; j < size; ++j) {
-					matrix[i*size + j] = rhs.matrix[i*size+j];
-				}
-			}
-		}
-
-		bool operator== (const svd_token &rhs) const {
-			if (size != rhs.size)
-				return false;
-
-			int i;
-			for (i = 0; i < size * size; ++i)
-				if (matrix[i] - rhs.matrix[i] > 1e-3)
-					return false;
-
-			return true;
-		}
-
-		friend void sc_trace(sc_trace_file *tf, const svd_token &st,
-				const std::string &NAME) {
-		}
-
-		friend ostream& operator<< (ostream &os, svd_token const &st) {
-			unsigned i, j;
-			for (i = 0; i < st.size; ++i) {
-				for (j = 0; j < st.size; ++j) {
-					os << st.matrix[i * st.size + j] << " ";
-				}
-				os << endl;
-			}
-
-			return os;
-		}
-};
-#endif
 
 #endif

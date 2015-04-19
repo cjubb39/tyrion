@@ -1,6 +1,7 @@
 #ifndef __SVDTB_H__
 #define __SVDTB_H__
 
+#define SC_INCLUDE_FX
 #include "systemc.h"
 #include <ctos_flex_channels.h>
 
@@ -11,6 +12,7 @@
 #include "svd_data.h"
 
 //#define VERBOSE
+#define MAX_ERROR (0.000001)
 
 SC_MODULE(svd_tb) {
 	sc_in<bool> clk;
@@ -61,7 +63,7 @@ SC_MODULE(svd_tb) {
 	SVD_CELL_TYPE input_matrix[SVD_INPUT_SIZE(MAX_SIZE)];
 	SVD_CELL_TYPE output_matrix[SVD_OUTPUT_SIZE(MAX_SIZE)];
 
-	SVD_CELL_TYPE golden_input_matrix[SVD_INPUT_SIZE(MAX_SIZE)];
-	SVD_CELL_TYPE golden_matrix[SVD_OUTPUT_SIZE(MAX_SIZE)];
+	double golden_input_matrix[SVD_INPUT_SIZE(MAX_SIZE)];
+	double golden_matrix[SVD_OUTPUT_SIZE(MAX_SIZE)];
 }; 
 #endif 

@@ -1,3 +1,4 @@
+#define SC_INCLUDE_FX
 #include "systemc.h"
 #include <ctos_flex_channels.h>
 

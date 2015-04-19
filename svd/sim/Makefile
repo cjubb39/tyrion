@@ -16,14 +16,16 @@ CTOS_INCLUDES := -I$(CTOS_ROOT)/share/ctos/include \
                 -I$(CTOS_ROOT)/share/ctos/include/ctos_fx \
                 -I$(CTOS_ROOT)/share/ctos/include/ctos_tlm \
                 -I$(CTOS_ROOT)/share/ctos/include/ctos_flex_channels
+MATH = /opt/zynq-math/src/
 
-INCDIR = -I../src -I../tb -I$(SYSTEMC)/include -I$(TLM)/include/tlm -I$(DRAMSIM) $(CTOS_INCLUDES)
+INCDIR = -I../src -I../tb -I$(SYSTEMC)/include -I$(TLM)/include/tlm \
+-I$(DRAMSIM) $(CTOS_INCLUDES) -I$(MATH) -I/tools/ctos141/share/ctos/include
 
 TARGET := svd
 VPATH := ../src:../tb
 SRCS := svd.cpp svd_tb.cpp sc_main.cpp gm_jacobi.cpp
 OBJS = $(SRCS:.cpp=.o)
-HDRS := svd_data.h svd.h svd_tb.h gm_jacobi.h
+HDRS := svd_data.h svd.h svd_ctos_funcs.h svd_tb.h gm_jacobi.h
 
 .SUFFIXES: .cpp .cc .o
 $(TARGET): $(OBJS)

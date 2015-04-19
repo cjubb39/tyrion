@@ -1,11 +1,21 @@
 #include "svd.h"
 
-/* TODO generalize to CELL_TYPE */
-double inline fp_abs(double in) {
-	return (in > 0) ? in : -in;
+#ifdef CTOS_SC_FIXED_POINT
+#include "svd_ctos_funcs.h"
+#endif
+
+SVD_CELL_TYPE inline fp_abs(SVD_CELL_TYPE in) {
+#ifdef CTOS_SC_FIXED_POINT
+	return sld::abs(in);
+#else
+	if (in >= 0)
+		return in;
+	else
+		return -in;
+#endif
 }
 
-void svd::identify (double *matrix, int dimension) {
+void svd::identify (SVD_CELL_TYPE *matrix, int dimension) {
 	int row, col;
 	for (row = 0; row < MAX_SIZE; row++) {
 		if (row == dimension) break;
@@ -20,7 +30,7 @@ void svd::identify (double *matrix, int dimension) {
 	return;
 }
 
-void svd::copyMatrix (double *a, double *b, int dimension) {
+void svd::copyMatrix (SVD_CELL_TYPE *a, SVD_CELL_TYPE *b, int dimension) {
 	int row, col;
 	for (row = 0; row < MAX_SIZE; row++) {
 		if (row == dimension) break;
@@ -32,10 +42,10 @@ void svd::copyMatrix (double *a, double *b, int dimension) {
 	return;
 }
 
-void svd::multiply (double *left, double *right, double *result, int dimension) {
+void svd::multiply (SVD_CELL_TYPE *left, SVD_CELL_TYPE *right, SVD_CELL_TYPE *result, int dimension) {
 	int leftRow, rightRow; // row numbers of the left and right matrix, respectively	
 	int leftCol, rightCol; // same as above but for columns
-	double tempResult = 0;
+	SVD_CELL_TYPE tempResult = 0;
 
 	for (leftRow = 0; leftRow < MAX_SIZE; leftRow++) {
 		if (leftRow == dimension) break;
@@ -54,7 +64,11 @@ void svd::multiply (double *left, double *right, double *result, int dimension) 
 	return;
 }
 
-void svd::jacobi (double *a, int n, double *s, double *u, double *v) {
+#define SVD_PRECISION (0.000000000001)
+#define MIN_MOVEMENT  (0.000000000001)
+#define CORDIC_ITER 80
+
+void svd::jacobi (SVD_CELL_TYPE *a, int n, SVD_CELL_TYPE *s, SVD_CELL_TYPE *u, SVD_CELL_TYPE *v) {
 	// Arrays that contain the coordinates of the elements of the 2x2
 	// sub matrix formed by the largest off-diagonal element. First entry
 	// is the row number and second entry is the column number.
@@ -80,12 +94,33 @@ void svd::jacobi (double *a, int n, double *s, double *u, double *v) {
 	le = findLargestElement (a, n, a11, a12, a21, a22);
 
 	int count = 0;
+	SVD_CELL_TYPE old_value = 0;
 	/* FIXME This loop may not be synthesizable */
-	while (fp_abs (le.value) > 0.00000000000000000001) {
+	while (fp_abs (le.value) >
+#ifndef REAL_FLOAT
+			SVD_CELL_TYPE(SVD_PRECISION)
+#else
+			SVD_PRECISION
+#endif
+			&& fp_abs(le.value - old_value) > SVD_CELL_TYPE(MIN_MOVEMENT)
+			) {
+		old_value = le.value;
 		count++;
 		rotate (a, n, u, v, a11, a12, a21, a22);
 		le = findLargestElement (a, n, a11, a12, a21, a22);
+#ifndef REAL_FLOAT
+		if (!(count % 10))
+		cerr << "current iteration: " << count << "; " << le.value.to_double() << ": " <<
+			old_value.to_double() << endl;
+#endif
+		
 	}
+#ifndef REAL_FLOAT
+		cerr << "current iteration: " << count << "; " << le.value.to_double() << ": " <<
+			old_value.to_double() << endl;
+#endif
+
+	cout << "loop count: " << count << endl;
 
 	reorder (a, n, u, v);
 
@@ -99,11 +134,11 @@ void svd::jacobi (double *a, int n, double *s, double *u, double *v) {
 	return;
 }
 
-void svd::rotate (double *a, int dimension, double *u, double *v, int *x11, int *x12, int *x21, int *x22) {
-	double a11, a12, a21, a22; // elements of the sub-matrix
-	double alpha, beta; // angles used in rotations; alpha is angle of left rotation and beta is angle of right rotation
-	double cosA, sinA, cosB, sinB;
-	double X, Y; // temporary values used in calculating angles
+void svd::rotate (SVD_CELL_TYPE *a, int dimension, SVD_CELL_TYPE *u, SVD_CELL_TYPE *v, int *x11, int *x12, int *x21, int *x22) {
+	SVD_CELL_TYPE a11, a12, a21, a22; // elements of the sub-matrix
+	SVD_CELL_TYPE alpha, beta; // angles used in rotations; alpha is angle of left rotation and beta is angle of right rotation
+	SVD_CELL_TYPE cosA, sinA, cosB, sinB;
+	SVD_CELL_TYPE X, Y; // temporary values used in calculating angles
 
 	// Assign elements of sub-matrix to the their actual values from a
 	a11 = a [x11[0] * dimension + x11[1]]; a12 = a [x12[0] * dimension + x12[1]];
@@ -111,13 +146,32 @@ void svd::rotate (double *a, int dimension, double *u, double *v, int *x11, int 
 
 	// Calculate angles and sin and cos of those angles using the closed
 	// formulas found.
-	/* FIXME trig functions */
-	X = atan ((a21 - a12) / (a11 + a22)); Y = atan ((a21 + a12) / (a11 - a22));
+#ifdef CTOS_SC_FIXED_POINT
+	X = sld::atan2_cordic_func<CORDIC_ITER, WL, IWL>((SVD_CELL_TYPE) (a11+a22), (SVD_CELL_TYPE) (a21 - a12));
+	Y = sld::atan2_cordic_func<CORDIC_ITER, WL, IWL>((SVD_CELL_TYPE) (a11-a22), (SVD_CELL_TYPE) (a21 + a12));
+	//cout << "X, Y: " << X << "; " << Y << "; " << (X + Y) << "; " << (Y - X) << endl;
+
+	alpha = (X + Y) * SVD_CELL_TYPE(0.5);//sld::div_func<WL, IWL, WL, IWL, WL, IWL>((X + Y), SVD_CELL_TYPE(2));
+	beta = (Y - X) * SVD_CELL_TYPE(0.5);//sld::div_func<WL, IWL, WL, IWL, WL, IWL>((Y - X), SVD_CELL_TYPE(2));
+	//cout << "a, b: " << alpha << "; " << beta << endl;
+
+	sld::cos_sin_cordic_func<CORDIC_ITER, WL, IWL>(alpha, cosA, sinA);
+	//cosA = sld::cos_cordic_func<CORDIC_ITER, WL, IWL>(alpha);
+	//sinA = sld::sin_cordic_func<CORDIC_ITER, WL, IWL>(alpha);
+	sld::cos_sin_cordic_func<CORDIC_ITER, WL, IWL>(beta, cosB, sinB);
+	//cosB = sld::cos_cordic_func<CORDIC_ITER, WL, IWL>(beta);
+	//sinB = sld::sin_cordic_func<CORDIC_ITER, WL, IWL>(beta);
+
+	//cout << "rotate stats: " << cosA << "; " << sinA << "; " << cosB << "; " << sinB << endl;
+#else
+	X = atan((a21 - a12) / (a11 + a22));
+	Y = atan((a21 + a12) / (a11 - a22));
 	alpha = 0.5 * (X + Y);
 	beta = 0.5 * (Y - X);
-	/* FIXME trig functions */
+
 	cosA = cos (alpha); sinA = sin (alpha);
 	cosB = cos (beta); sinB = sin (beta);
+#endif
 
 	// Create left rotation matrix, namely U_i which looks like this
 	//
@@ -127,7 +181,7 @@ void svd::rotate (double *a, int dimension, double *u, double *v, int *x11, int 
 	identify (Ui, dimension);
 	Ui [x11[0] * dimension + x11[1]] = Ui [x22[0] * dimension + x22[1]] = cosA;
 	Ui [x12[0] * dimension + x12[1]] = sinA;
-	Ui [x21[0] * dimension + x21[1]] = (-1.0) * sinA;
+	Ui [x21[0] * dimension + x21[1]] = -sinA;
 
 	// Create the right rotation matrix, namely V_i which looks like this
 	//
@@ -136,7 +190,7 @@ void svd::rotate (double *a, int dimension, double *u, double *v, int *x11, int 
 	//
 	identify (Vi, dimension);
 	Vi [x11[0] * dimension + x11[1]] = Vi [x22[0] * dimension + x22[1]] = cosB;
-	Vi [x12[0] * dimension + x12[1]] = (-1.0) * sinB;
+	Vi [x12[0] * dimension + x12[1]] = -sinB;
 	Vi [x21[0] * dimension + x21[1]] = sinB;
 
 	// Rotate a
@@ -157,7 +211,7 @@ void svd::rotate (double *a, int dimension, double *u, double *v, int *x11, int 
 	return; 
 }
 
-LargestElement svd::findLargestElement (double *matrix, int dimension, int *a11, int *a12, int *a21, int *a22) {
+LargestElement svd::findLargestElement (SVD_CELL_TYPE *matrix, int dimension, int *a11, int *a12, int *a21, int *a22) {
 	LargestElement leTemp;
 	int i, j;
 
@@ -218,8 +272,8 @@ LargestElement svd::findLargestElement (double *matrix, int dimension, int *a11,
 	return leTemp;
 }
 
-void svd::transpose (double *matrix, int dimension) {
-	double temp;
+void svd::transpose (SVD_CELL_TYPE *matrix, int dimension) {
+	SVD_CELL_TYPE temp;
 	int row, col;
 	for (row = 0; row < MAX_SIZE; row++) {
 		if (row == dimension) break;
@@ -234,9 +288,9 @@ void svd::transpose (double *matrix, int dimension) {
 	return;
 }
 
-void svd::reorder (double *a, int dimension, double *u, double *v) {
+void svd::reorder (SVD_CELL_TYPE *a, int dimension, SVD_CELL_TYPE *u, SVD_CELL_TYPE *v) {
 	int row, col, x, largestElementRow;
-	double temp; // stores the largest singular value
+	SVD_CELL_TYPE temp; // stores the largest singular value
 
 	for (x = 0; x < MAX_SIZE; x++) {
 		if (x == dimension) break;
@@ -277,8 +331,8 @@ void svd::reorder (double *a, int dimension, double *u, double *v) {
 }
 
 // Swap row a with row b of matrix m
-void svd::swapRows (double *m, int a, int b, int dimension) {
-	double temp;
+void svd::swapRows (SVD_CELL_TYPE *m, int a, int b, int dimension) {
+	SVD_CELL_TYPE temp;
 	for (int col = 0; col < MAX_SIZE; col++) {
 		if (col == dimension) break;
 		temp = m [a * dimension + col];

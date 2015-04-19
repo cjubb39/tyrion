@@ -1,6 +1,7 @@
 #ifndef _SVD_H_
 #define _SVD_H_
 
+#define SC_INCLUDE_FX
 #include "systemc.h"
 #include <ctos_flex_channels.h>
 //#include <flex_channels.hpp>
@@ -9,10 +10,16 @@
 
 #define NUM_OUTPUT_MATRIX 3
 
+#if 0
+#define SVD_PRECISION (1)
+#define MIN_MOVEMENT  (0.001)
+#define CORDIC_ITER 80
+#endif
+
 //#define VERBOSE
 
 typedef struct {
-	double value;
+	SVD_CELL_TYPE value;
 	int rowNum;
 	int colNum;
 } LargestElement;
@@ -79,23 +86,23 @@ SC_MODULE(svd) {
 	sc_signal<bool>     output_start;
 
 	/* SVD functions */
-	void multiply (double *left, double *right, double *result, int dimension);
-	void jacobi (double *a, int n, double *s, double *u, double *v);
-	LargestElement findLargestElement (double *matrix, int dimension, int *a11, int *a12, int *a21, int *a22);
-	void copyMatrix (double *a, double *b, int dimension);
-	void identify (double *matrix, int dimension);
-	void rotate (double *a, int dimension, double *u, double *v, int *x11, int *x12, int *x21, int *x22);
-	void transpose (double *matrix, int dimension);
-	void reorder (double *a, int dimension, double *u, double *v);
-	void swapRows (double *m, int a, int b, int dimension);
+	void multiply (SVD_CELL_TYPE *left, SVD_CELL_TYPE *right, SVD_CELL_TYPE *result, int dimension);
+	void jacobi (SVD_CELL_TYPE *a, int n, SVD_CELL_TYPE *s, SVD_CELL_TYPE *u, SVD_CELL_TYPE *v);
+	LargestElement findLargestElement (SVD_CELL_TYPE *matrix, int dimension, int *a11, int *a12, int *a21, int *a22);
+	void copyMatrix (SVD_CELL_TYPE *a, SVD_CELL_TYPE *b, int dimension);
+	void identify (SVD_CELL_TYPE *matrix, int dimension);
+	void rotate (SVD_CELL_TYPE *a, int dimension, SVD_CELL_TYPE *u, SVD_CELL_TYPE *v, int *x11, int *x12, int *x21, int *x22);
+	void transpose (SVD_CELL_TYPE *matrix, int dimension);
+	void reorder (SVD_CELL_TYPE *a, int dimension, SVD_CELL_TYPE *u, SVD_CELL_TYPE *v);
+	void swapRows (SVD_CELL_TYPE *m, int a, int b, int dimension);
 
 	/* scratchpad matrices */
 	/* TODO generalize type to synthesizeable */
-	double Ui[MAX_SIZE * MAX_SIZE];
-	double Vi[MAX_SIZE * MAX_SIZE];
-	double tempResult[MAX_SIZE * MAX_SIZE];
-	double tempMatrix[MAX_SIZE * MAX_SIZE];
-	double p[MAX_SIZE * MAX_SIZE];
+	SVD_CELL_TYPE Ui[MAX_SIZE * MAX_SIZE];
+	SVD_CELL_TYPE Vi[MAX_SIZE * MAX_SIZE];
+	SVD_CELL_TYPE tempResult[MAX_SIZE * MAX_SIZE];
+	SVD_CELL_TYPE tempMatrix[MAX_SIZE * MAX_SIZE];
+	SVD_CELL_TYPE p[MAX_SIZE * MAX_SIZE];
 	LargestElement leArray[MAX_SIZE];
 
 

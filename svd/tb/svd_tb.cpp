@@ -6,7 +6,7 @@ void svd_tb::fill_buf() {
 	//real basic matrix
 	int i = 0; 
 	for(; i < SVD_INPUT_SIZE(mat_size); i++) {
-		SVD_CELL_TYPE tmp = rand();
+		int tmp = rand() % 8192;
 		input_matrix[i] = tmp;
 		golden_input_matrix[i] = tmp;
 	}
@@ -27,6 +27,17 @@ void print_matrix(double *mat, int size) {
 		printf("\n");
 	}
 }
+
+#ifndef REAL_FLOAT
+void print_matrix(SVD_CELL_TYPE *mat, int size) {
+	for (int i = 0; i < size; ++i) {
+		for (int j = 0; j < size; ++j) {
+			printf("%f ", mat[i * size + j].to_double());
+		}
+		printf("\n");
+	}
+}
+#endif
 
 void svd_tb::dmac(void) {
 	// RESET
@@ -57,7 +68,13 @@ void svd_tb::dmac(void) {
 			rst_dut.write(0);
 
 			for (int i = 0; i < SVD_OUTPUT_SIZE(mat_size); ++i) {
-				SVD_CELL_TYPE diff = output_matrix[i] - golden_matrix[i];
+				double diff =
+#ifdef REAL_FLOAT
+					abs(output_matrix[i])
+#else
+					abs(output_matrix[i].to_double())
+#endif
+					- abs(golden_matrix[i]);
 				if (diff < 0) {
 					diff *= -1;
 				}
