@@ -10,11 +10,9 @@
 
 #define NUM_OUTPUT_MATRIX 3
 
-#if 0
-#define SVD_PRECISION (1)
-#define MIN_MOVEMENT  (0.001)
+#define SVD_PRECISION (0.000000000001)
+#define MIN_MOVEMENT  (0.000000000001)
 #define CORDIC_ITER 80
-#endif
 
 //#define VERBOSE
 
@@ -97,14 +95,12 @@ SC_MODULE(svd) {
 	void swapRows (SVD_CELL_TYPE *m, int a, int b, int dimension);
 
 	/* scratchpad matrices */
-	/* TODO generalize type to synthesizeable */
 	SVD_CELL_TYPE Ui[MAX_SIZE * MAX_SIZE];
 	SVD_CELL_TYPE Vi[MAX_SIZE * MAX_SIZE];
 	SVD_CELL_TYPE tempResult[MAX_SIZE * MAX_SIZE];
 	SVD_CELL_TYPE tempMatrix[MAX_SIZE * MAX_SIZE];
 	SVD_CELL_TYPE p[MAX_SIZE * MAX_SIZE];
 	LargestElement leArray[MAX_SIZE];
-
 
 	SVD_CELL_TYPE matrix_in[MAX_SIZE * MAX_SIZE];
 

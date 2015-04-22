@@ -17,8 +17,10 @@ SVD_CELL_TYPE inline fp_abs(SVD_CELL_TYPE in) {
 
 void svd::identify (SVD_CELL_TYPE *matrix, int dimension) {
 	int row, col;
+IDENTITY_OUTER:
 	for (row = 0; row < MAX_SIZE; row++) {
 		if (row == dimension) break;
+IDENTITY_INNER:
 		for (col = 0; col < MAX_SIZE; col++) {
 			if (col == dimension) break;
 			// Elements on diagonal =1
@@ -32,8 +34,12 @@ void svd::identify (SVD_CELL_TYPE *matrix, int dimension) {
 
 void svd::copyMatrix (SVD_CELL_TYPE *a, SVD_CELL_TYPE *b, int dimension) {
 	int row, col;
+
+COPY_MATRIX_OUTER:
 	for (row = 0; row < MAX_SIZE; row++) {
 		if (row == dimension) break;
+
+COPY_MATRIX_INNER:
 		for (col = 0; col < MAX_SIZE; col++) {
 			if (col == dimension) break;
 			b [(row * dimension) + col] = a [(row * dimension) + col];
@@ -47,11 +53,15 @@ void svd::multiply (SVD_CELL_TYPE *left, SVD_CELL_TYPE *right, SVD_CELL_TYPE *re
 	int leftCol, rightCol; // same as above but for columns
 	SVD_CELL_TYPE tempResult = 0;
 
+MULTIPLY_MATRIX_OUTER:
 	for (leftRow = 0; leftRow < MAX_SIZE; leftRow++) {
 		if (leftRow == dimension) break;
+
+MULTIPLY_MATRIX_MID:
 		for (rightCol = 0; rightCol < MAX_SIZE; rightCol++) {
 			if (rightCol == dimension) break;
 
+MULTIPLY_MATRIX_INNER:
 			for (leftCol = rightRow = 0; leftCol < MAX_SIZE;
 					leftCol++, rightRow++) {
 				if (leftCol == dimension) break;
@@ -63,10 +73,6 @@ void svd::multiply (SVD_CELL_TYPE *left, SVD_CELL_TYPE *right, SVD_CELL_TYPE *re
 	}
 	return;
 }
-
-#define SVD_PRECISION (0.000000000001)
-#define MIN_MOVEMENT  (0.000000000001)
-#define CORDIC_ITER 80
 
 void svd::jacobi (SVD_CELL_TYPE *a, int n, SVD_CELL_TYPE *s, SVD_CELL_TYPE *u, SVD_CELL_TYPE *v) {
 	// Arrays that contain the coordinates of the elements of the 2x2
@@ -96,6 +102,8 @@ void svd::jacobi (SVD_CELL_TYPE *a, int n, SVD_CELL_TYPE *s, SVD_CELL_TYPE *u, S
 	int count = 0;
 	SVD_CELL_TYPE old_value = 0;
 	/* FIXME This loop may not be synthesizable */
+
+CONVERGENCE_LOOP:
 	while (fp_abs (le.value) >
 #ifndef REAL_FLOAT
 			SVD_CELL_TYPE(SVD_PRECISION)
@@ -125,6 +133,7 @@ void svd::jacobi (SVD_CELL_TYPE *a, int n, SVD_CELL_TYPE *s, SVD_CELL_TYPE *u, S
 	reorder (a, n, u, v);
 
 	// Copy over the singular values in a to s
+COPY_SINGULAR_VALUES:
 	for (i = 0; i < MAX_SIZE; i++) {
 		if (i == n) break;
 		j = i;
@@ -220,8 +229,11 @@ LargestElement svd::findLargestElement (SVD_CELL_TYPE *matrix, int dimension, in
 
 	// Populate leArray such that the entry at index i contains information
 	// about the largest element of row i
+FLE_POPULATE_OUTER:
 	for (i = 0; i < MAX_SIZE; i++) {
 		if (i == dimension) break;
+
+FLE_POPULATE_INNER:
 		for (j = 0; j < MAX_SIZE; j++) {
 			if (j == dimension) break;
 			// We are looking for the largest OFF-DIAGONAL element
@@ -242,6 +254,7 @@ LargestElement svd::findLargestElement (SVD_CELL_TYPE *matrix, int dimension, in
 	leTemp.rowNum = leTemp.colNum = -1;
 	// Iterate over leArray and find the largest element in the matrix as a
 	// whole
+FLE_ITERATE_LOOP:
 	for (i = 0; i < MAX_SIZE; i++) {
 		if (i == dimension) break;
 		if (fp_abs (leArray [i].value) > fp_abs (leTemp.value)) {
@@ -275,8 +288,12 @@ LargestElement svd::findLargestElement (SVD_CELL_TYPE *matrix, int dimension, in
 void svd::transpose (SVD_CELL_TYPE *matrix, int dimension) {
 	SVD_CELL_TYPE temp;
 	int row, col;
+
+TRANSPOSE_OUTER:
 	for (row = 0; row < MAX_SIZE; row++) {
 		if (row == dimension) break;
+
+TRANSPOSE_INNER:
 		for (col = (row + 1); col < MAX_SIZE; col++) {
 			if (col == dimension) break;
 			if (col == row) {continue;} // skip diagonal elements
@@ -292,10 +309,13 @@ void svd::reorder (SVD_CELL_TYPE *a, int dimension, SVD_CELL_TYPE *u, SVD_CELL_T
 	int row, col, x, largestElementRow;
 	SVD_CELL_TYPE temp; // stores the largest singular value
 
+REORDER_OUTER:
 	for (x = 0; x < MAX_SIZE; x++) {
 		if (x == dimension) break;
 		temp = 0.0;
 		identify (p, dimension);
+
+REORDER_INNER:
 		for (row = x; row < MAX_SIZE; row++) {
 			if (row == dimension) break;
 			col = row;
@@ -317,6 +337,7 @@ void svd::reorder (SVD_CELL_TYPE *a, int dimension, SVD_CELL_TYPE *u, SVD_CELL_T
 	transpose (u, dimension);
 	transpose (v, dimension);
 	identify (p, dimension);
+REORDER_FIND_NEG:
 	for (row = 0; row < MAX_SIZE; row++) {
 		if (row == dimension) break;
 		col = row;
@@ -333,6 +354,8 @@ void svd::reorder (SVD_CELL_TYPE *a, int dimension, SVD_CELL_TYPE *u, SVD_CELL_T
 // Swap row a with row b of matrix m
 void svd::swapRows (SVD_CELL_TYPE *m, int a, int b, int dimension) {
 	SVD_CELL_TYPE temp;
+
+SWAP_ROW:
 	for (int col = 0; col < MAX_SIZE; col++) {
 		if (col == dimension) break;
 		temp = m [a * dimension + col];
@@ -403,8 +426,10 @@ LOAD_INPUT_WHILE:
 		rd_request.write(false);
 		do { wait(); } while(rd_grant.read());
 
+LOAD_OUTER:
 		for (int i = 0; i < MAX_SIZE; ++i) {
 			if (i == rows) break;
+LOAD_INNER:
 			for (int j = 0; j < MAX_SIZE; ++j) {
 				if (j == rows) break;
 				SVD_CELL_TYPE cell = bufdin.get();
@@ -472,8 +497,10 @@ STORE_OUTPUT_WHILE:
 		wr_request.write(false);
 		do { wait(); } while(wr_grant.read());
 
+OUTPUT_S_OUTER:
 		for (int i = 0; i < MAX_SIZE; ++i) {
 			if (i == rows) break;
+OUTPUT_S_INNER:
 			for (int j = 0; j < MAX_SIZE; ++j) {
 				if (j == rows) break;
 				SVD_CELL_TYPE cell = s[i * size + j];
@@ -498,8 +525,10 @@ STORE_OUTPUT_WHILE:
 		wr_request.write(false);
 		do { wait(); } while(wr_grant.read());
 
+OUTPUT_U_OUTER:
 		for (int i = 0; i < MAX_SIZE; ++i) {
 			if (i == rows) break;
+OUTPUT_U_INNER:
 			for (int j = 0; j < MAX_SIZE; ++j) {
 				if (j == rows) break;
 				SVD_CELL_TYPE cell = u[i * size + j];
@@ -524,8 +553,10 @@ STORE_OUTPUT_WHILE:
 		wr_request.write(false);
 		do { wait(); } while(wr_grant.read());
 
+OUTPUT_V_OUTER:
 		for (int i = 0; i < MAX_SIZE; ++i) {
 			if (i == rows) break;
+OUTPUT_V_INNER:
 			for (int j = 0; j < MAX_SIZE; ++j) {
 				if (j == rows) break;
 				SVD_CELL_TYPE cell = v[i * size + j];
@@ -580,4 +611,6 @@ DEBAYER_WHILE:
 		svd_row += rows;
 	}
 }
-
+#ifdef __CTOS__
+SC_MODULE_EXPORT(flash)
+#endif
