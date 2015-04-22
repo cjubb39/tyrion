@@ -65,7 +65,11 @@ MULTIPLY_MATRIX_INNER:
 			for (leftCol = rightRow = 0; leftCol < MAX_SIZE;
 					leftCol++, rightRow++) {
 				if (leftCol == dimension) break;
-				tempResult += left[(leftRow * dimension) + leftCol] * right[(rightRow * dimension) + rightCol];
+				/* TODO reevaluate best way to handle this re: waits */
+				SVD_CELL_TYPE tmp, tmp2;
+				tmp = left[(leftRow * dimension) + leftCol];
+				tmp2 = right[(rightRow * dimension) + rightCol];
+				tempResult += tmp * tmp2;
 			}
 			result [(leftRow * dimension) + rightCol] = tempResult;
 			tempResult = 0;
@@ -93,7 +97,9 @@ void svd::jacobi (SVD_CELL_TYPE *a, int n, SVD_CELL_TYPE *s, SVD_CELL_TYPE *u, S
 	identify (v, n);
 
 	if (n == 1) {	// 1x1 matrix is already in SVD
-		s[0] = a[0];
+		SVD_CELL_TYPE tmp = s[0];
+		wait();
+		s[0] = tmp;
 		return;
 	}
 
@@ -137,7 +143,10 @@ COPY_SINGULAR_VALUES:
 	for (i = 0; i < MAX_SIZE; i++) {
 		if (i == n) break;
 		j = i;
-		s [i] = a [(i * n) + j];
+		SVD_CELL_TYPE tmp;
+		tmp = a[(i * n) + j];
+		wait();
+		s [i] = tmp;
 	}
 
 	return;
@@ -150,8 +159,14 @@ void svd::rotate (SVD_CELL_TYPE *a, int dimension, SVD_CELL_TYPE *u, SVD_CELL_TY
 	SVD_CELL_TYPE X, Y; // temporary values used in calculating angles
 
 	// Assign elements of sub-matrix to the their actual values from a
-	a11 = a [x11[0] * dimension + x11[1]]; a12 = a [x12[0] * dimension + x12[1]];
-	a21 = a [x21[0] * dimension + x21[1]]; a22 = a [x22[0] * dimension + x22[1]];
+	a11 = a [x11[0] * dimension + x11[1]];
+	wait();
+	a12 = a [x12[0] * dimension + x12[1]];
+	wait();
+	a21 = a [x21[0] * dimension + x21[1]];
+	wait();
+	a22 = a [x22[0] * dimension + x22[1]];
+	wait();
 
 	// Calculate angles and sin and cos of those angles using the closed
 	// formulas found.
@@ -286,7 +301,7 @@ FLE_ITERATE_LOOP:
 }
 
 void svd::transpose (SVD_CELL_TYPE *matrix, int dimension) {
-	SVD_CELL_TYPE temp;
+	SVD_CELL_TYPE temp, temp2;
 	int row, col;
 
 TRANSPOSE_OUTER:
@@ -295,11 +310,17 @@ TRANSPOSE_OUTER:
 
 TRANSPOSE_INNER:
 		for (col = (row + 1); col < MAX_SIZE; col++) {
+			/* TODO rework indexing */
 			if (col == dimension) break;
 			if (col == row) {continue;} // skip diagonal elements
 			temp = matrix [(row * dimension) + col];
-			matrix [(row * dimension) + col] = matrix [(col * dimension) + row];
+			wait();
+			temp2 = matrix [(col * dimension) + row];
+			wait();
+			matrix [(row * dimension) + col] = temp2;
+			wait();
 			matrix [(col * dimension) + row] = temp;
+			wait();
 		}
 	}
 	return;
@@ -612,5 +633,5 @@ DEBAYER_WHILE:
 	}
 }
 #ifdef __CTOS__
-SC_MODULE_EXPORT(flash)
+SC_MODULE_EXPORT(svd)
 #endif

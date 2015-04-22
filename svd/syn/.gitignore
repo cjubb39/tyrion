@@ -1,8 +1,9 @@
 *.log
 *_work
 model_*
+*_model/
 model/
-flash/
+tyrion/
 setup_locals.tcl
 area.txt
 timing.txt

@@ -18,8 +18,8 @@
 
 typedef struct {
 	SVD_CELL_TYPE value;
-	int rowNum;
-	int colNum;
+	char rowNum;
+	char colNum;
 } LargestElement;
 
 SC_MODULE(svd) {
