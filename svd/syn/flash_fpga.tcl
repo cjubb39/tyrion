@@ -41,36 +41,32 @@ write_sim_makefile -overwrite
 
 set_attr default_scheduling_effort low [get_design]
 
-inline /designs/tyrion/modules/svd/behaviors/transpose /designs/tyrion/modules/svd/behaviors/swapRows /designs/tyrion/modules/svd/behaviors/rotate /designs/tyrion/modules/svd/behaviors/reorder /designs/tyrion/modules/svd/behaviors/jacobi
-
-#inline /designs/tyrion/modules/svd/behaviors/multiply
-
+# loops
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/copyMatrix/nodes/COPY_MATRIX_INNER_for_begin
-# break_combinational_loop /designs/tyrion/modules/svd/behaviors/svd_process_svd/nodes/COPY_SINGULAR_VALUES_for_begin
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/cordic_func_80__128__32_/nodes/CORDIC_LOOP_for_begin
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/findLargestElement/nodes/FLE_ITERATE_LOOP_for_begin
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/findLargestElement/nodes/FLE_POPULATE_INNER_for_begin
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/identify/nodes/IDENTITY_INNER_for_begin
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/svd_load_input/nodes/LOAD_OUTER_for_begin
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/multiply/nodes/MULTIPLY_MATRIX_INNER_for_begin
-#break_combinational_loop /designs/tyrion/modules/svd/behaviors/multiply/nodes/MULTIPLY_MATRIX_MID_for_begin
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/multiply/nodes/MULTIPLY_MATRIX_OUTER_for_begin
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/svd_store_output/nodes/OUTPUT_S_OUTER_for_begin
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/svd_store_output/nodes/OUTPUT_U_OUTER_for_begin
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/svd_store_output/nodes/OUTPUT_V_OUTER_for_begin
-break_combinational_loop /designs/tyrion/modules/svd/behaviors/svd_process_svd/nodes/REORDER_FIND_NEG_for_begin
-break_combinational_loop /designs/tyrion/modules/svd/behaviors/svd_process_svd/nodes/SWAP_ROW_for_begin
-break_combinational_loop /designs/tyrion/modules/svd/behaviors/svd_process_svd/nodes/TRANSPOSE_OUTER_for_begin
-break_combinational_loop /designs/tyrion/modules/svd/behaviors/svd_process_svd/nodes/TRANSPOSE_OUTER_for_begin_0
-break_combinational_loop /designs/tyrion/modules/svd/behaviors/svd_process_svd/nodes/REORDER_INNER_for_begin
-break_combinational_loop /designs/tyrion/modules/svd/behaviors/svd_process_svd/nodes/TRANSPOSE_INNER_for_begin
-break_combinational_loop /designs/tyrion/modules/svd/behaviors/svd_process_svd/nodes/TRANSPOSE_INNER_for_begin_0
+break_combinational_loop /designs/tyrion/modules/svd/behaviors/reorder/nodes/REORDER_FIND_NEG_for_begin
+break_combinational_loop /designs/tyrion/modules/svd/behaviors/reorder/nodes/REORDER_INNER_for_begin
+break_combinational_loop /designs/tyrion/modules/svd/behaviors/swapRows/nodes/SWAP_ROW_for_begin
+break_combinational_loop /designs/tyrion/modules/svd/behaviors/transpose/nodes/TRANSPOSE_INNER_for_begin
+break_combinational_loop /designs/tyrion/modules/svd/behaviors/transpose/nodes/TRANSPOSE_OUTER_for_begin
 
+# arrays
 flatten_array  /designs/tyrion/modules/svd/arrays/a22 /designs/tyrion/modules/svd/arrays/a21 /designs/tyrion/modules/svd/arrays/a12 /designs/tyrion/modules/svd/arrays/a11
 
-inline /designs/tyrion/modules/svd/behaviors/fp_abs /designs/tyrion/modules/svd/behaviors/cos_sin_cordic_func_80__128__32_ /designs/tyrion/modules/svd/behaviors/cordic_func_80__128__32_ /designs/tyrion/modules/svd/behaviors/atan2_cordic_func_80__128__32_ /designs/tyrion/modules/svd/behaviors/abs_128__32_ /designs/tyrion/modules/svd/behaviors/identify /designs/tyrion/modules/svd/behaviors/copyMatrix
+# functions
+inline /designs/tyrion/modules/svd/behaviors/transpose /designs/tyrion/modules/svd/behaviors/swapRows /designs/tyrion/modules/svd/behaviors/rotate /designs/tyrion/modules/svd/behaviors/reorder /designs/tyrion/modules/svd/behaviors/multiply /designs/tyrion/modules/svd/behaviors/jacobi /designs/tyrion/modules/svd/behaviors/identify /designs/tyrion/modules/svd/behaviors/fp_abs /designs/tyrion/modules/svd/behaviors/findLargestElement /designs/tyrion/modules/svd/behaviors/cos_sin_cordic_func_80__128__32_ /designs/tyrion/modules/svd/behaviors/cordic_func_80__128__32_ /designs/tyrion/modules/svd/behaviors/copyMatrix /designs/tyrion/modules/svd/behaviors/atan2_cordic_func_80__128__32_ /designs/tyrion/modules/svd/behaviors/abs_128__32_
 
-
+# memory
+flatten_array  /designs/tyrion/modules/svd/arrays/leArray_rowNum /designs/tyrion/modules/svd/arrays/leArray_colNum
 allocate_prototype_memory /designs/tyrion/modules/svd/arrays/v_m_mant
 allocate_prototype_memory /designs/tyrion/modules/svd/arrays/u_m_mant
 allocate_prototype_memory /designs/tyrion/modules/svd/arrays/tempResult_m_mant
@@ -79,19 +75,15 @@ allocate_prototype_memory /designs/tyrion/modules/svd/arrays/s_m_mant
 allocate_prototype_memory /designs/tyrion/modules/svd/arrays/p_m_mant
 allocate_prototype_memory /designs/tyrion/modules/svd/arrays/matrix_in_m_mant
 allocate_prototype_memory /designs/tyrion/modules/svd/arrays/leArray_value_m_mant
-allocate_prototype_memory /designs/tyrion/modules/svd/arrays/leArray_rowNum
-allocate_prototype_memory /designs/tyrion/modules/svd/arrays/leArray_colNum
 allocate_prototype_memory /designs/tyrion/modules/svd/arrays/Vi_m_mant
 allocate_prototype_memory /designs/tyrion/modules/svd/arrays/Ui_m_mant
 
-# scheduling
+# schedule
 set_attr relax_latency "true" /designs/tyrion/modules/svd/behaviors/svd_config_svd
 set_attr relax_latency "true" /designs/tyrion/modules/svd/behaviors/svd_load_input
 set_attr relax_latency "true" /designs/tyrion/modules/svd/behaviors/svd_store_output
 set_attr relax_latency "true" /designs/tyrion/modules/svd/behaviors/svd_process_svd
-set_attr relax_latency "true" /designs/tyrion/modules/svd/behaviors/findLargestElement
-set_attr relax_latency "true" /designs/tyrion/modules/svd/behaviors/multiply
-schedule -passes 200 -post_optimize none -verbose /designs/tyrion/modules/svd
+schedule -passes 200 -verbose /designs/tyrion/modules/svd
 
 allocate_registers /designs/tyrion
 
