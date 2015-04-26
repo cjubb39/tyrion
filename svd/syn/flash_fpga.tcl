@@ -39,7 +39,7 @@ write_sim_makefile -overwrite
 #write_sim -type verilog -suffix _post_build -birthday -dir ./model /designs/flash/modules/flash.
 #write_wrapper -o ./model/flash_ctos_wrapper.h /designs/flash/modules/flash.
 
-set_attr default_scheduling_effort low [get_design]
+set_attr default_scheduling_effort high [get_design]
 
 # loops
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/copyMatrix/nodes/COPY_MATRIX_INNER_for_begin
@@ -79,11 +79,13 @@ allocate_prototype_memory /designs/tyrion/modules/svd/arrays/Vi_m_mant
 allocate_prototype_memory /designs/tyrion/modules/svd/arrays/Ui_m_mant
 
 # schedule
+# define sched effort is medium
+set_attr scheduling_effort "low" /designs/tyrion/modules/svd/behaviors/svd_config_svd
 set_attr relax_latency "true" /designs/tyrion/modules/svd/behaviors/svd_config_svd
 set_attr relax_latency "true" /designs/tyrion/modules/svd/behaviors/svd_load_input
 set_attr relax_latency "true" /designs/tyrion/modules/svd/behaviors/svd_store_output
 set_attr relax_latency "true" /designs/tyrion/modules/svd/behaviors/svd_process_svd
-schedule -passes 200 -verbose /designs/tyrion/modules/svd
+schedule -passes 200 -post_optimize advanced -verbose /designs/tyrion/modules/svd
 
 allocate_registers /designs/tyrion
 
