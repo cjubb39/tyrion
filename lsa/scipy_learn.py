@@ -1,5 +1,5 @@
-from numpy import matrix, loadtxt, delete  
-from scipy.linalg import qr, svd
+from numpy import matrix, loadtxt, delete, dot, take, append   
+from scipy.linalg import qr, svd, diagsvd
 
 
 if __name__ == "__main__":
@@ -30,3 +30,26 @@ if __name__ == "__main__":
             matrix_str += row_str
         print len(r)
         print matrix_str
+
+        s_prime = take(s, [0, 1] )
+        s_prime = append(s_prime, [0.0, 0.0, 0.0] ) 
+        print(s_prime)
+        print (u)
+        print("U dot sigma prime")
+        a_prime = u.dot(diagsvd(s_prime, 8, 5))
+        print(a_prime)
+ #       print("from R: U ") 
+ #       print(uu)
+        print("From r: U dot sigma prime")
+        r_a_prime = uu.dot(diagsvd(s_prime, 5, 5)) 
+        print(r_a_prime)
+#        print ("Q")
+#        print(q)
+
+        q = delete(q, [5, 6, 7] , axis=1)
+        r_a_prime = q.dot(r_a_prime) 
+
+        print("From r: U dot sigma prime")
+        print(r_a_prime) 
+
+
