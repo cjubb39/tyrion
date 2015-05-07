@@ -73,7 +73,7 @@ allocate_prototype_memory /designs/tyrion/modules/svd/arrays/v_m_mant
 allocate_prototype_memory /designs/tyrion/modules/svd/arrays/u_m_mant
 #allocate_prototype_memory /designs/tyrion/modules/svd/arrays/tempResult_m_mant
 allocate_prototype_memory /designs/tyrion/modules/svd/arrays/tempMatrix_m_mant
-#allocate_prototype_memory /designs/tyrion/modules/svd/arrays/s_m_mant
+allocate_prototype_memory /designs/tyrion/modules/svd/arrays/s_m_mant
 #allocate_prototype_memory /designs/tyrion/modules/svd/arrays/p_m_mant
 allocate_prototype_memory /designs/tyrion/modules/svd/arrays/matrix_in_m_mant
 #allocate_prototype_memory /designs/tyrion/modules/svd/arrays/leArray_value_m_mant

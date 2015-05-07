@@ -146,6 +146,8 @@ COPY_SINGULAR_VALUES:
 		SVD_CELL_TYPE tmp;
 		tmp = a[(i * n) + j];
 		wait();
+#if 0
+<<<<<<< HEAD
 		a[i] = tmp;
 		wait();
 #if 0
@@ -161,19 +163,11 @@ CLEANUP_DIAGONAL:
 		if (i == n) break;
 		a[(i * n) + i] = 0.0;
 		wait();
+=======
+#endif
+		s[i] = tmp;
+//>>>>>>> parent of 838eb0f... eliminated the s matrix
 	}
-/*
-    // Copy over the singular values in a to s
-COPY_SINGULAR_VALUES:
-    for (i = 0; i < MAX_SIZE; i++) {
-        if (i == n) break;
-        j = i;
-        SVD_CELL_TYPE tmp;
-        tmp = a[(i * n) + j];
-        wait();
-        s[i] = tmp;
-    }
-*/ 
 
 	return;
 }
@@ -619,10 +613,9 @@ OUTPUT_S_OUTER:
 		for (int i = 0; i < MAX_SIZE; ++i) {
 			if (i == rows) break;
 OUTPUT_S_INNER:
-            //replaced s with matrix_in 
 			for (int j = 0; j < MAX_SIZE; ++j) {
 				if (j == rows) break;
-				SVD_CELL_TYPE cell = matrix_in[i * size + j];
+				SVD_CELL_TYPE cell = s[i * size + j];
 				bufdout.put(cell);
 #ifdef VERBOSE
 				cout << "DUT PUT: (index, length, i, j, val)" << index << " " << length
@@ -717,7 +710,7 @@ DEBAYER_WHILE:
 		while (input_done.read());
 		process_start.write(false);
 
-		jacobi(matrix_in, rows, NULL, u, v);
+		jacobi(matrix_in, rows, s, u, v);
 
 		// 4-phase handshake
 		process_done.write(true);
