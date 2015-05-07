@@ -206,8 +206,34 @@ void svd::rotate (SVD_CELL_TYPE *a, int dimension, SVD_CELL_TYPE *u, SVD_CELL_TY
 	Ui [x11[0] * dimension + x11[1]] = Ui [x22[0] * dimension + x22[1]] = cosA;
 	Ui [x12[0] * dimension + x12[1]] = sinA;
 	Ui [x21[0] * dimension + x21[1]] = -sinA;
+	// Rotate a
+    // First on the left with Ui
+    multiply (Ui, a, tempMatrix, dimension);
+    copyMatrix (tempMatrix, a, dimension);
+	// Apply rotation matrix Ui to U
+    multiply (Ui, u, tempMatrix, dimension);
+    copyMatrix (tempMatrix, u, dimension);
+    // Create the right rotation matrix, namely V_i which looks like this
+    // Note that I'm using Ui as Vi 
+    //		| cosB	-sinB |
+    //		| sinB	 cosB |
+    //
+    identify (Ui, dimension);
+    Ui [x11[0] * dimension + x11[1]] = Ui [x22[0] * dimension + x22[1]] = cosB;
+    Ui [x12[0] * dimension + x12[1]] = -sinB;
+    Ui [x21[0] * dimension + x21[1]] = sinB;
 
-	// Create the right rotation matrix, namely V_i which looks like this
+    // Then on the right with Vi
+    multiply (a, Ui, tempMatrix, dimension);
+    copyMatrix (tempMatrix, a, dimension);
+    multiply (v, Ui, tempMatrix, dimension);
+    copyMatrix (tempMatrix, v, dimension);
+
+
+    
+/*
+
+    // Create the right rotation matrix, namely V_i which looks like this
 	//
 	//		| cosB	-sinB |
 	//		| sinB	 cosB |
@@ -231,7 +257,7 @@ void svd::rotate (SVD_CELL_TYPE *a, int dimension, SVD_CELL_TYPE *u, SVD_CELL_TY
 	// Apply rotation matrix Vi to V
 	multiply (v, Vi, tempResult, dimension);
 	copyMatrix (tempResult, v, dimension);
-
+*/
 	return; 
 }
 
@@ -329,12 +355,15 @@ TRANSPOSE_INNER:
 void svd::reorder (SVD_CELL_TYPE *a, int dimension, SVD_CELL_TYPE *u, SVD_CELL_TYPE *v) {
 	int row, col, x, largestElementRow;
 	SVD_CELL_TYPE temp; // stores the largest singular value
+    //Replace p with Ui because why not?
+    
+
 
 REORDER_OUTER:
 	for (x = 0; x < MAX_SIZE; x++) {
 		if (x == dimension) break;
 		temp = 0.0;
-		identify (p, dimension);
+		identify (Ui, dimension);
 
 REORDER_INNER:
 		for (row = x; row < MAX_SIZE; row++) {
@@ -345,31 +374,72 @@ REORDER_INNER:
 				largestElementRow = row;
 			}
 		}
-		swapRows (p, x, largestElementRow, dimension);
+		swapRows (Ui, x, largestElementRow, dimension);
 		// Reorder a
-		multiply (p, a, tempMatrix, dimension); copyMatrix (tempMatrix, a, dimension);
-		multiply (a, p, tempMatrix, dimension); copyMatrix (tempMatrix, a, dimension);
+		multiply (Ui, a, tempMatrix, dimension); copyMatrix (tempMatrix, a, dimension);
+		multiply (a, Ui, tempMatrix, dimension); copyMatrix (tempMatrix, a, dimension);
 		// Reorder u
-		multiply (p, u, tempMatrix, dimension); copyMatrix (tempMatrix, u, dimension);
+		multiply (Ui, u, tempMatrix, dimension); copyMatrix (tempMatrix, u, dimension);
 		// Reorder v
-		multiply (v, p, tempMatrix, dimension); copyMatrix (tempMatrix, v, dimension);
+		multiply (v, Ui, tempMatrix, dimension); copyMatrix (tempMatrix, v, dimension);
 	}
 
 	transpose (u, dimension);
 	transpose (v, dimension);
-	identify (p, dimension);
+	identify (Ui, dimension);
 REORDER_FIND_NEG:
 	for (row = 0; row < MAX_SIZE; row++) {
 		if (row == dimension) break;
 		col = row;
 		if (a [row * dimension + col] < 0)
-			p [row * dimension + col] = -1.0;
+			Ui[row * dimension + col] = -1.0;
 	}
-	multiply (p, a, tempMatrix, dimension);
+	multiply (Ui, a, tempMatrix, dimension);
 	copyMatrix (tempMatrix, a, dimension);
-	multiply (u, p, tempMatrix, dimension);
+	multiply (u, Ui, tempMatrix, dimension);
 	copyMatrix (tempMatrix, u, dimension);
-	return;
+/* Old version 
+REORDER_OUTER:
+for (x = 0; x < MAX_SIZE; x++) {
+    if (x == dimension) break;
+    temp = 0.0;
+    identify (p, dimension);
+
+REORDER_INNER:
+    for (row = x; row < MAX_SIZE; row++) {
+        if (row == dimension) break;
+        col = row;
+        if (fp_abs (a [row * dimension + col]) > fp_abs (temp)) {
+            temp = a [row * dimension + col];
+            largestElementRow = row;
+        }
+    }
+    swapRows (p, x, largestElementRow, dimension);
+    // Reorder a
+    multiply (p, a, tempMatrix, dimension); copyMatrix (tempMatrix, a, dimension);
+    multiply (a, p, tempMatrix, dimension); copyMatrix (tempMatrix, a, dimension);
+    // Reorder u
+    multiply (p, u, tempMatrix, dimension); copyMatrix (tempMatrix, u, dimension);
+    // Reorder v
+    multiply (v, p, tempMatrix, dimension); copyMatrix (tempMatrix, v, dimension);
+}
+
+transpose (u, dimension);
+transpose (v, dimension);
+identify (p, dimension);
+REORDER_FIND_NEG:
+for (row = 0; row < MAX_SIZE; row++) {
+    if (row == dimension) break;
+    col = row;
+    if (a [row * dimension + col] < 0)
+        p [row * dimension + col] = -1.0;
+}
+multiply (p, a, tempMatrix, dimension);
+copyMatrix (tempMatrix, a, dimension);
+multiply (u, p, tempMatrix, dimension);
+copyMatrix (tempMatrix, u, dimension);
+*/ 
+    return;
 }
 
 // Swap row a with row b of matrix m
