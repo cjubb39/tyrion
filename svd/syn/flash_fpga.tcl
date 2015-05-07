@@ -12,14 +12,14 @@ if {[get_design] != "" } then {
 new_design tyrion
 set_attr design_dir "" /designs/tyrion
 set_attr auto_write_models "true" /designs/tyrion
-define_sim_config -model_dir "./tyrion_model" /designs/tyrion
+define_sim_config -model_dir "./tyrion" /designs/tyrion
 set_attr source_files [list ../src/svd.cpp] /designs/tyrion
 set_attr header_files [list ../src/svd.h ../src/svd_ctos_funcs.h ../src/svd_data.h] /designs/tyrion
 set_attr compile_flags " -w -I../src/ -I/opt/zynq-math/src/" /designs/tyrion
 set_attr top_module_path "svd" /designs/tyrion
 set_attr build_flat "true" /designs/tyrion
 define_clock -name clk -period 20000 -rise 0 -fall 10000
-define_sim_config -makefile_name ../ctos_sim_unisim/Makefile -model_dir tyrion -simulator_args "-I../src/ -I/opt/zynq-math/src/" -testbench_files "../tb/tyrion_tb.cpp ../tb/sc_main.cpp" -testbench_kind self_checking -success_msg ""
+define_sim_config -makefile_name ../ctos_sim_unisim/Makefile -model_dir tyrion -simulator_args "-I../src/ -I/opt/zynq-math/src/" -testbench_files "../tb/svd_tb.cpp ../tb/sc_main.cpp" -testbench_kind self_checking -success_msg ""
 define_synth_config -run_dir "run_synth_gates" -standard_flow "default_synthesis_flow" -config_file_name ""
 
 # implementation
@@ -43,7 +43,8 @@ set_attr default_scheduling_effort high [get_design]
 
 # loops
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/copyMatrix/nodes/COPY_MATRIX_INNER_for_begin
-break_combinational_loop /designs/tyrion/modules/svd/behaviors/cordic_func_80__128__32_/nodes/CORDIC_LOOP_for_begin
+#break_combinational_loop /designs/tyrion/modules/svd/behaviors/cordic_func_80__128__32_/nodes/CORDIC_LOOP_for_begin
+break_combinational_loop /designs/tyrion/modules/svd/behaviors/cordic_func_80__64__24_/nodes/CORDIC_LOOP_for_begin
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/findLargestElement/nodes/FLE_ITERATE_LOOP_for_begin
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/findLargestElement/nodes/FLE_POPULATE_INNER_for_begin
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/identify/nodes/IDENTITY_INNER_for_begin
@@ -63,7 +64,8 @@ break_combinational_loop /designs/tyrion/modules/svd/behaviors/transpose/nodes/T
 flatten_array  /designs/tyrion/modules/svd/arrays/a22 /designs/tyrion/modules/svd/arrays/a21 /designs/tyrion/modules/svd/arrays/a12 /designs/tyrion/modules/svd/arrays/a11
 
 # functions
-inline /designs/tyrion/modules/svd/behaviors/transpose /designs/tyrion/modules/svd/behaviors/swapRows /designs/tyrion/modules/svd/behaviors/rotate /designs/tyrion/modules/svd/behaviors/reorder /designs/tyrion/modules/svd/behaviors/multiply /designs/tyrion/modules/svd/behaviors/jacobi /designs/tyrion/modules/svd/behaviors/identify /designs/tyrion/modules/svd/behaviors/fp_abs /designs/tyrion/modules/svd/behaviors/findLargestElement /designs/tyrion/modules/svd/behaviors/cos_sin_cordic_func_80__128__32_ /designs/tyrion/modules/svd/behaviors/cordic_func_80__128__32_ /designs/tyrion/modules/svd/behaviors/copyMatrix /designs/tyrion/modules/svd/behaviors/atan2_cordic_func_80__128__32_ /designs/tyrion/modules/svd/behaviors/abs_128__32_
+#inline /designs/tyrion/modules/svd/behaviors/transpose /designs/tyrion/modules/svd/behaviors/swapRows /designs/tyrion/modules/svd/behaviors/rotate /designs/tyrion/modules/svd/behaviors/reorder /designs/tyrion/modules/svd/behaviors/multiply /designs/tyrion/modules/svd/behaviors/jacobi /designs/tyrion/modules/svd/behaviors/identify /designs/tyrion/modules/svd/behaviors/fp_abs /designs/tyrion/modules/svd/behaviors/findLargestElement /designs/tyrion/modules/svd/behaviors/cos_sin_cordic_func_80__128__32_ /designs/tyrion/modules/svd/behaviors/cordic_func_80__128__32_ /designs/tyrion/modules/svd/behaviors/copyMatrix /designs/tyrion/modules/svd/behaviors/atan2_cordic_func_80__128__32_ /designs/tyrion/modules/svd/behaviors/abs_128__32_
+inline /designs/tyrion/modules/svd/behaviors/transpose /designs/tyrion/modules/svd/behaviors/swapRows /designs/tyrion/modules/svd/behaviors/rotate /designs/tyrion/modules/svd/behaviors/reorder /designs/tyrion/modules/svd/behaviors/multiply /designs/tyrion/modules/svd/behaviors/jacobi /designs/tyrion/modules/svd/behaviors/identify /designs/tyrion/modules/svd/behaviors/fp_abs /designs/tyrion/modules/svd/behaviors/findLargestElement /designs/tyrion/modules/svd/behaviors/cos_sin_cordic_func_80__64__24_ /designs/tyrion/modules/svd/behaviors/cordic_func_80__64__24_ /designs/tyrion/modules/svd/behaviors/copyMatrix /designs/tyrion/modules/svd/behaviors/atan2_cordic_func_80__64__24_ /designs/tyrion/modules/svd/behaviors/abs_64__24_
 
 # memory
 flatten_array  /designs/tyrion/modules/svd/arrays/leArray_rowNum /designs/tyrion/modules/svd/arrays/leArray_colNum
