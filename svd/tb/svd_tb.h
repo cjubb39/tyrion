@@ -12,7 +12,7 @@
 #include "svd_data.h"
 
 //#define VERBOSE
-#define MAX_ERROR (0.000001)
+#define MAX_ERROR (0.0001)
 
 SC_MODULE(svd_tb) {
 	sc_in<bool> clk;
