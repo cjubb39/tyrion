@@ -100,7 +100,7 @@ SC_MODULE(svd) {
 	//SVD_CELL_TYPE tempResult[MAX_SIZE * MAX_SIZE];
 	SVD_CELL_TYPE tempMatrix[MAX_SIZE * MAX_SIZE];
 	//SVD_CELL_TYPE p[MAX_SIZE * MAX_SIZE];
-	LargestElement leArray[MAX_SIZE];
+	//LargestElement leArray[MAX_SIZE];
 
 	SVD_CELL_TYPE matrix_in[MAX_SIZE * MAX_SIZE];
 

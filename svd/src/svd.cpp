@@ -146,7 +146,7 @@ COPY_SINGULAR_VALUES:
 		SVD_CELL_TYPE tmp;
 		tmp = a[(i * n) + j];
 		wait();
-		s [i] = tmp;
+		s[i] = tmp;
 	}
 
 	return;
@@ -286,15 +286,16 @@ FLE_POPULATE_INNER:
 				leTemp.colNum = j;
 			}
 		}
-		leArray[i].value = leTemp.value;
-		leArray[i].rowNum = leTemp.rowNum;
-		leArray[i].colNum = leTemp.colNum;
-		leTemp.value = 0;
+		//leArray[i].value = leTemp.value;
+		//leArray[i].rowNum = leTemp.rowNum;
+		//leArray[i].colNum = leTemp.colNum;
+		//leTemp.value = 0;
 	}
-	leTemp.value = 0;
-	leTemp.rowNum = leTemp.colNum = -1;
+	//leTemp.value = 0;
+	//leTemp.rowNum = leTemp.colNum = -1;
 	// Iterate over leArray and find the largest element in the matrix as a
 	// whole
+/*
 FLE_ITERATE_LOOP:
 	for (i = 0; i < MAX_SIZE; i++) {
 		if (i == dimension) break;
@@ -304,7 +305,7 @@ FLE_ITERATE_LOOP:
 			leTemp.colNum = leArray [i].colNum;
 		}
 	}
-
+*/
 	// Determining coordinates of the 2x2 sub matrix formed by this largest
 	// element
 	if (leTemp.rowNum < leTemp.colNum) { // largest element is above diagonal
