@@ -147,9 +147,20 @@ COPY_SINGULAR_VALUES:
 		tmp = a[(i * n) + j];
 		wait();
 		a[i] = tmp;
-        if(i) {
-            a[(i * n) + j] = 0.0; 
-        }
+		wait();
+#if 0
+		if(i) { /* because (0,0) in top row */
+			wait();
+			a[(i * n) + j] = 0.0; 
+		}
+#endif
+	}
+
+CLEANUP_DIAGONAL:
+	for (i = 1; i < MAX_SIZE; ++i) {
+		if (i == n) break;
+		a[(i * n) + i] = 0.0;
+		wait();
 	}
 /*
     // Copy over the singular values in a to s

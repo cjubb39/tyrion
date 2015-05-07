@@ -45,7 +45,7 @@ set_attr default_scheduling_effort high [get_design]
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/copyMatrix/nodes/COPY_MATRIX_INNER_for_begin
 #break_combinational_loop /designs/tyrion/modules/svd/behaviors/cordic_func_80__128__32_/nodes/CORDIC_LOOP_for_begin
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/cordic_func_80__64__24_/nodes/CORDIC_LOOP_for_begin
-break_combinational_loop /designs/tyrion/modules/svd/behaviors/findLargestElement/nodes/FLE_ITERATE_LOOP_for_begin
+#break_combinational_loop /designs/tyrion/modules/svd/behaviors/findLargestElement/nodes/FLE_ITERATE_LOOP_for_begin
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/findLargestElement/nodes/FLE_POPULATE_INNER_for_begin
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/identify/nodes/IDENTITY_INNER_for_begin
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/svd_load_input/nodes/LOAD_OUTER_for_begin
@@ -68,16 +68,16 @@ flatten_array  /designs/tyrion/modules/svd/arrays/a22 /designs/tyrion/modules/sv
 inline /designs/tyrion/modules/svd/behaviors/transpose /designs/tyrion/modules/svd/behaviors/swapRows /designs/tyrion/modules/svd/behaviors/rotate /designs/tyrion/modules/svd/behaviors/reorder /designs/tyrion/modules/svd/behaviors/multiply /designs/tyrion/modules/svd/behaviors/jacobi /designs/tyrion/modules/svd/behaviors/identify /designs/tyrion/modules/svd/behaviors/fp_abs /designs/tyrion/modules/svd/behaviors/findLargestElement /designs/tyrion/modules/svd/behaviors/cos_sin_cordic_func_80__64__24_ /designs/tyrion/modules/svd/behaviors/cordic_func_80__64__24_ /designs/tyrion/modules/svd/behaviors/copyMatrix /designs/tyrion/modules/svd/behaviors/atan2_cordic_func_80__64__24_ /designs/tyrion/modules/svd/behaviors/abs_64__24_
 
 # memory
-flatten_array  /designs/tyrion/modules/svd/arrays/leArray_rowNum /designs/tyrion/modules/svd/arrays/leArray_colNum
+#flatten_array  /designs/tyrion/modules/svd/arrays/leArray_rowNum /designs/tyrion/modules/svd/arrays/leArray_colNum
 allocate_prototype_memory /designs/tyrion/modules/svd/arrays/v_m_mant
 allocate_prototype_memory /designs/tyrion/modules/svd/arrays/u_m_mant
-allocate_prototype_memory /designs/tyrion/modules/svd/arrays/tempResult_m_mant
+#allocate_prototype_memory /designs/tyrion/modules/svd/arrays/tempResult_m_mant
 allocate_prototype_memory /designs/tyrion/modules/svd/arrays/tempMatrix_m_mant
-allocate_prototype_memory /designs/tyrion/modules/svd/arrays/s_m_mant
-allocate_prototype_memory /designs/tyrion/modules/svd/arrays/p_m_mant
+#allocate_prototype_memory /designs/tyrion/modules/svd/arrays/s_m_mant
+#allocate_prototype_memory /designs/tyrion/modules/svd/arrays/p_m_mant
 allocate_prototype_memory /designs/tyrion/modules/svd/arrays/matrix_in_m_mant
-allocate_prototype_memory /designs/tyrion/modules/svd/arrays/leArray_value_m_mant
-allocate_prototype_memory /designs/tyrion/modules/svd/arrays/Vi_m_mant
+#allocate_prototype_memory /designs/tyrion/modules/svd/arrays/leArray_value_m_mant
+#allocate_prototype_memory /designs/tyrion/modules/svd/arrays/Vi_m_mant
 allocate_prototype_memory /designs/tyrion/modules/svd/arrays/Ui_m_mant
 
 # schedule
