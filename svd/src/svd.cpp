@@ -68,11 +68,14 @@ MULTIPLY_MATRIX_INNER:
 				/* TODO reevaluate best way to handle this re: waits */
 				SVD_CELL_TYPE tmp, tmp2;
 				tmp = left[(leftRow * dimension) + leftCol];
+				wait();
 				tmp2 = right[(rightRow * dimension) + rightCol];
 				tempResult += tmp * tmp2;
+				wait();
 			}
 			result [(leftRow * dimension) + rightCol] = tempResult;
 			tempResult = 0;
+			wait();
 		}
 	}
 	return;
@@ -137,36 +140,19 @@ CONVERGENCE_LOOP:
 	cout << "loop count: " << count << endl;
 
 	reorder (a, n, u, v);
+	wait();
 
 	// Copy over the singular values in a to s
 COPY_SINGULAR_VALUES:
-	for (i = 0; i < MAX_SIZE; i++) {
+	for (i = 1; i < MAX_SIZE; i++) {
 		if (i == n) break;
-		j = i;
 		SVD_CELL_TYPE tmp;
-		tmp = a[(i * n) + j];
+		tmp = s[(i * n) + i];
 		wait();
-#if 0
-<<<<<<< HEAD
-		a[i] = tmp;
-		wait();
-#if 0
-		if(i) { /* because (0,0) in top row */
-			wait();
-			a[(i * n) + j] = 0.0; 
-		}
-#endif
-	}
-
-CLEANUP_DIAGONAL:
-	for (i = 1; i < MAX_SIZE; ++i) {
-		if (i == n) break;
-		a[(i * n) + i] = 0.0;
-		wait();
-=======
-#endif
 		s[i] = tmp;
-//>>>>>>> parent of 838eb0f... eliminated the s matrix
+		wait();
+		s[(i * n) + i] = 0;
+		wait();
 	}
 
 	return;
@@ -710,7 +696,17 @@ DEBAYER_WHILE:
 		while (input_done.read());
 		process_start.write(false);
 
-		jacobi(matrix_in, rows, s, u, v);
+		for (int i = 0; i < MAX_SIZE; ++i) {
+			for (int j = 0; j < MAX_SIZE; ++j) {
+				SVD_CELL_TYPE tmp;
+				tmp = matrix_in[i * rows + j];
+				wait();
+				s[i * rows + j] = tmp;
+				wait();
+			}
+		}
+
+		jacobi(s, rows, s, u, v);
 
 		// 4-phase handshake
 		process_done.write(true);

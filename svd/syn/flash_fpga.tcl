@@ -49,7 +49,7 @@ break_combinational_loop /designs/tyrion/modules/svd/behaviors/cordic_func_80__6
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/findLargestElement/nodes/FLE_POPULATE_INNER_for_begin
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/identify/nodes/IDENTITY_INNER_for_begin
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/svd_load_input/nodes/LOAD_OUTER_for_begin
-break_combinational_loop /designs/tyrion/modules/svd/behaviors/multiply/nodes/MULTIPLY_MATRIX_INNER_for_begin
+#break_combinational_loop /designs/tyrion/modules/svd/behaviors/multiply/nodes/MULTIPLY_MATRIX_INNER_for_begin
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/multiply/nodes/MULTIPLY_MATRIX_OUTER_for_begin
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/svd_store_output/nodes/OUTPUT_S_OUTER_for_begin
 break_combinational_loop /designs/tyrion/modules/svd/behaviors/svd_store_output/nodes/OUTPUT_U_OUTER_for_begin
