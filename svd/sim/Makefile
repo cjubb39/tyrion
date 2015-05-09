@@ -23,9 +23,9 @@ INCDIR = -I../src -I../tb -I$(SYSTEMC)/include -I$(TLM)/include/tlm \
 
 TARGET := svd
 VPATH := ../src:../tb
-SRCS := svd.cpp svd_tb.cpp sc_main.cpp gm_jacobi.cpp
+SRCS := svd_wrapper.cpp svd.cpp svd_tb.cpp sc_main.cpp gm_jacobi.cpp
 OBJS = $(SRCS:.cpp=.o)
-HDRS := svd_data.h svd.h svd_ctos_funcs.h svd_tb.h gm_jacobi.h
+HDRS := svd_data.h svd_wrapper.h svd.h svd_ctos_funcs.h svd_tb.h gm_jacobi.h
 
 .SUFFIXES: .cpp .cc .o
 $(TARGET): $(OBJS)

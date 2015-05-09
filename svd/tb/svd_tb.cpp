@@ -43,11 +43,16 @@ void svd_tb::dmac(void) {
 	// RESET
 	srand(time(NULL));
 	rst_dut.write(0);
+#if 0
 	rd_grant.write(0);
 	wr_grant.write(0);
 	conf_done.write(0);
 	bufdin.reset_put();
 	bufdout.reset_get();
+#endif
+	data_to_dut.reset_put();
+	data_from_dut.reset_get();
+
 	wait();
 
 	mat_size = MAX_SIZE;
@@ -55,9 +60,12 @@ void svd_tb::dmac(void) {
 	compute_golden_model();
 
 	rst_dut.write(1);
+#if 0
 	conf_size.write(mat_size);
 	conf_done.write(1);
+#endif
 
+#if 0
 	while (true) {
 		do { wait(); }
 		while (!rd_request.read() && !wr_request.read() && !svd_done.read());
@@ -128,6 +136,51 @@ void svd_tb::dmac(void) {
 			}
 		}
 	}
+#endif
+	/* put data to DUT */
+	for (int i = 0; i < SVD_INPUT_SIZE(MAX_SIZE); ++i) {
+		SVD_CELL_TYPE tmp;
+		sc_uint<64> tmp_sc_uint;
+		uint64_t whole;
+		uint32_t lower_half, upper_half;
+
+		tmp = input_matrix[i];
+		
+		/* TODO check this does what I expect */
+		tmp_sc_uint = tmp.range();
+		whole = tmp_sc_uint;
+
+		lower_half = whole;
+		upper_half = whole >> 32;
+
+		data_to_dut.put(lower_half);
+		wait();
+		data_to_dut.put(upper_half);
+		wait();
+	}
+
+	/* get back result */
+	for (int i = 0; i < SVD_OUTPUT_SIZE(MAX_SIZE); ++i) {
+		SVD_CELL_TYPE tmp;
+		sc_uint<32> tmp_sc_uint;
+		uint64_t whole;
+		uint32_t lower_half, upper_half;
+
+		tmp_sc_uint = data_from_dut.get();
+		lower_half = tmp_sc_uint;
+		wait();
+
+		tmp_sc_uint = data_from_dut.get();
+		upper_half = tmp_sc_uint;
+		wait();
+
+		whole = ((uint64_t) upper_half) << 32 + lower_half;
+		CTOS_FX_ASSIGN_RANGE(tmp, whole);
+		output_matrix[i] = tmp;
+	}
+	
+	do {wait();}
+	while (!svd_done.read());
 
 	// Stop simulation
 	sc_stop();

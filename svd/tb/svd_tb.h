@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <ctime>
 #include <ostream>
+#include <stdint.h>
 #include "svd_data.h"
 
 //#define VERBOSE
@@ -19,6 +20,7 @@ SC_MODULE(svd_tb) {
 	sc_in<bool> rst;
 	sc_out<bool> rst_dut;
 
+#if 0
 	// DMA requests interface from memory to device
 	sc_in<unsigned>   rd_index;     // array index (offset from starting address)
 	sc_in<unsigned>   rd_length;    // burst size (in words)
@@ -38,6 +40,9 @@ SC_MODULE(svd_tb) {
 
 	sc_out<unsigned> conf_size;
 	sc_out<bool>     conf_done;
+#endif
+	put_initiator<uint32_t> data_to_dut;
+	get_initiator<uint32_t> data_from_dut;
 
 	// computation complete. Written by store_output
 	sc_in<bool> svd_done;
@@ -48,8 +53,12 @@ SC_MODULE(svd_tb) {
 		SC_CTHREAD(dmac, clk.pos()); 
 		reset_signal_is(rst, false);
 
+#if 0
 		bufdin.clk_rst(clk,rst);
 		bufdout.clk_rst(clk,rst);
+#endif
+		data_to_dut.clk_rst(clk,rst);
+		data_from_dut.clk_rst(clk,rst);
 	}
 
 	int get_mismatches() {return mismatches;}

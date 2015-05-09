@@ -2,7 +2,10 @@
 #include "systemc.h"
 #include <ctos_flex_channels.h>
 
-#include "svd.h"
+#include <stdint.h>
+
+#include "svd_wrapper.h"
+//#include "svd.h"
 #include "svd_tb.h"
 #include "svd_data.h"
 
@@ -52,9 +55,12 @@ int sc_main(int, char**) {
 	sc_signal<bool>    svd_done;
 
 
+#if 0
 	svd dut("dut");
+#endif
 	svd_tb tb("tb");
 
+#if 0
 	dut.clk(clk);
 	dut.rst(rst_dut);
 	dut.rd_index(rd_index);
@@ -70,6 +76,17 @@ int sc_main(int, char**) {
 	dut.conf_size(conf_size);
 	dut.conf_done(conf_done);
 	dut.svd_done(svd_done);
+#endif
+
+	put_get_channel<uint32_t> data_in("din");
+	put_get_channel<uint32_t> data_out("dout");
+
+	svd_wrapper wrapper("wrapper");
+	wrapper.clk(clk);
+	wrapper.rst(rst);
+	wrapper.data_in(data_in);
+	wrapper.data_out(data_out);
+	wrapper.svd_done_irq(svd_done);
 
 	tb.clk(clk);
 	tb.rst(rst);
@@ -82,6 +99,8 @@ int sc_main(int, char**) {
 	tb.req_out(wr_request);
 	tb.grant_out(wr_grant);
 #endif
+
+#if 0
 	tb.rd_index(rd_index);
 	tb.rd_length(rd_length);
 	tb.rd_request(rd_request);
@@ -94,6 +113,11 @@ int sc_main(int, char**) {
 	tb.bufdout(bufdout);
 	tb.conf_size(conf_size);
 	tb.conf_done(conf_done);
+	tb.svd_done(svd_done);
+#endif
+
+	tb.data_to_dut(data_in);
+	tb.data_from_dut(data_out);
 	tb.svd_done(svd_done);
 
 

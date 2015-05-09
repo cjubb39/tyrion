@@ -611,7 +611,6 @@ OUTPUT_S_INNER:
 			}
 		}
 
-
 		/* U matrix */
 		// Send DMA request
 		wr_index.write(index);

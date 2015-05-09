@@ -9,7 +9,7 @@
 //#define SC_FIXED_POINT
 #define CTOS_SC_FIXED_POINT
 
-#define MAX_SIZE  128
+#define MAX_SIZE   64
 
 #if defined(REAL_FLOAT)
 #define SVD_CELL_TYPE double
