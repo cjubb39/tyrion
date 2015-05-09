@@ -81,7 +81,7 @@ void jacobi (double *a, int n, double *s, double *u, double *v) {
 	le = findLargestElement (a, n, &a11, &a12, &a21, &a22);
 
 	int count = 0;
-	while (fabs (le.value) > 0.00000000000000000001) {
+	while (fabs (le.value) > 0.000000000001 /*0.00000000000000000001*/) {
 		count++;
 		rotate (a, n, u, v, a11, a12, a21, a22);
 		le = findLargestElement (a, n, &a11, &a12, &a21, &a22);

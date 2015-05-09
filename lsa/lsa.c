@@ -189,6 +189,8 @@ int read_from_file(char* filename,  double** arr) {
         ptr = strtok(buf, " "); 
 
         while (ptr && j < dim) {
+            //Hacky thing to make matrix real random and dense 
+            //TODO get rid of this
             (*arr)[i * dim + j++] = atof(ptr); 
             ptr = strtok(NULL, " "); 
         }
@@ -207,8 +209,8 @@ int read_from_file(char* filename,  double** arr) {
 
 int main(int argc, char** argv) {
     double* d = NULL; 
-    int dim = 256; 
-    int out_dim = 64; 
+    int dim = 128; 
+    int out_dim = 16; 
     read_from_file(argv[1], &d); 
 
     double* out = (double*) calloc(out_dim * out_dim, sizeof(double)); 
