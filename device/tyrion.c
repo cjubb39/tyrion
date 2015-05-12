@@ -41,6 +41,7 @@ static irqreturn_t tyrion_interrupt(int irq, void *dev_id)
 	if (irq != TYRION_INT_NUM)
 		return IRQ_NONE;
 	/* TODO add irq handling */
+printk(KERN_EMERG "tyrion interrupt\n");
 	return IRQ_HANDLED;
 }
 #if 0
@@ -61,13 +62,22 @@ static void change_write_to_tyrion(struct tyrion_dev *dev, tyrion_arg_t vla)
 static long write_to_tyrion(tyrion_arg_t vla) {
 	unsigned i;
 	size_t num_to_write;
+	uint32_t *buf;
 
 	num_to_write = 2 * vla.length;
+	if(!(buf = kmalloc(num_to_write * sizeof *buf, GFP_KERNEL))) {
+		return -ENOMEM;
+	}
+
+	if (copy_from_user(buf, vla.mem_base, num_to_write * sizeof *buf)) {
+		kfree(buf);
+		return -EFAULT;
+	}
 
 	for (i = 0; i < num_to_write; ++i) {
 		uint32_t value;
 
-		value = ((uint32_t *) vla.mem_base)[i];
+		value = buf[i];
 		iowrite32(value, dev.virtbase);
 	}
 
@@ -81,7 +91,7 @@ static long read_from_tyrion(tyrion_arg_t vla) {
 	uint32_t *buf;
 
 	num_to_read = 2 * vla.length;
-	if((buf = kmalloc(num_to_read * sizeof *buf, GFP_KERNEL))) {
+	if(!(buf = kmalloc(num_to_read * sizeof *buf, GFP_KERNEL))) {
 		ret = -ENOMEM;
 		goto failed_allocation;
 	}
