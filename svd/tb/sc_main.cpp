@@ -83,7 +83,7 @@ int sc_main(int, char**) {
 
 	svd_wrapper wrapper("wrapper");
 	wrapper.clk(clk);
-	wrapper.rst(rst);
+	wrapper.rst(rst_dut);
 	wrapper.data_in(data_in);
 	wrapper.data_out(data_out);
 	wrapper.svd_done_irq(svd_done);
