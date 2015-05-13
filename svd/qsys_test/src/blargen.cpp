@@ -5,8 +5,11 @@ void blargen::input(void) {
 	done_input.write(false);
 	wait();
 
+	unsigned tmp;
 	for (int i = 0; i < SIZE; ++i) {
-		data[i] = data_in.get();
+		tmp = data_in.get();
+		wait();
+		d_in[i] = tmp;
 		wait();
 	}
 
@@ -22,6 +25,19 @@ void blargen::process(void) {
 	do {wait();}
 	while(!done_input.read());
 
+	int i;
+	unsigned tmp, tmp2;
+	for (i = 0; i < SIZE/2; ++i) {
+		tmp = d_in[i];
+		wait();
+		tmp2 = d_in[SIZE-i];
+		wait();
+		d_out[i] = tmp2;
+		wait();
+		d_out[SIZE-i] = tmp;
+		wait();
+	}
+
 
 	done_process.write(true);
 
@@ -36,8 +52,11 @@ void blargen::output(void) {
 	do {wait();}
 	while(!done_process.read());
 
+	unsigned tmp;
 	for (int i = 0; i < SIZE; ++i) {
-		data_out.put(data[i]);
+		tmp = d_out[i];
+		wait();
+		data_out.put(tmp);
 		wait();
 	}
 

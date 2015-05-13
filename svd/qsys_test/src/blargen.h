@@ -33,7 +33,8 @@ SC_MODULE(blargen) {
 	}
 
 	private:
-	unsigned data[SIZE];
+	unsigned d_in[SIZE];
+	unsigned d_out[SIZE];
 
 	sc_signal<bool> done_input;
 	sc_signal<bool> done_process;
