@@ -13,7 +13,7 @@ int sc_main(int, char**) {
 	sc_report_handler::set_actions("/IEEE_Std_1666/deprecated",
 			SC_DO_NOTHING);
 
-	int clk_in = 10;
+	int clk_in = 20;
 
 	sc_clock clk("clk", clk_in, SC_NS);
 	sc_signal<bool> rst;
