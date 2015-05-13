@@ -12,7 +12,7 @@ int sc_main(int, char **) {
 	put_get_channel<unsigned> din;
 	put_get_channel<unsigned> dout;
 
-	blargen dut("dut");
+	blargen_wrapper dut("dut");
 	blargen_tb tb("tb");
 
 

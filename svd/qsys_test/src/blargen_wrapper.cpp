@@ -2,7 +2,6 @@
 
 void blargen_wrapper::handle_input() {
 	unsigned tmp;
-	unsigned lower_half, upper_half;
 
 	data_in.reset_get();
 	data_to_dut.reset_put();
@@ -10,14 +9,9 @@ void blargen_wrapper::handle_input() {
 
 	while (true) {
 WRAPPER_INPUT_LOOP:
-			lower_half = data_in.get();
+			tmp = data_in.get();
 			wait();
-#if 0
-			upper_half = data_in.get();
-			wait();
-#endif
 
-			tmp = lower_half + upper_half;
 			data_to_dut.put(tmp);
 			wait();
 	}
@@ -25,7 +19,6 @@ WRAPPER_INPUT_LOOP:
 
 void blargen_wrapper::handle_output() {
 	unsigned tmp;
-	unsigned lower_half, upper_half;
 
 	data_out.reset_put();
 	data_from_dut.reset_get();
@@ -36,15 +29,7 @@ WRAPPER_OUTPUT_LOOP:
 			tmp = data_from_dut.get();
 			wait();
 
-			lower_half = tmp;
-			upper_half = tmp;
-
-#if 0
-			data_out.put(lower_half);
-			wait();
-#endif
-
-			data_out.put(upper_half);
+			data_out.put(tmp);
 			wait();
 	}
 }
