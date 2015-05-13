@@ -643,7 +643,7 @@
   <parameter name="useWriteControl" value="true" />
   <parameter name="deviceFamilyString" value="Cyclone V" />
  </module>
- <module kind="blargen" version="1.9" enabled="1" name="blargen_0" />
+ <module kind="blargen" version="1.10" enabled="1" name="blargen_0" />
  <connection
    kind="clock"
    version="13.1"
