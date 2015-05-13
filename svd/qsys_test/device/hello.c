@@ -73,8 +73,8 @@ int main()
 
 	int i, j;
 	for (i = 0; i < 8; ++i) {
-		value_in = i;
 		for(j = 0; j < 4; ++j) {
+		value_in = i * 4 + j;
 			if (ioctl(fifo0_fd, VGA_LED_WRITE_DIGIT, &value_in)) {
 				perror("ioctl(VGA_LED_WRITE_DIGIT) failed");
 				return;
