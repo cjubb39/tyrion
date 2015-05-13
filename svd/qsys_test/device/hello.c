@@ -71,7 +71,8 @@ int main()
 		return -1;
 	}
 
-#define SIZE (2*2*64*64)
+#define SIZE (2*5*5)
+	//(2*2*64*64)
 
 	int i, j;
 	//for (i = 0; i < 4; ++i) {
@@ -82,18 +83,16 @@ int main()
 				return;
 			}
 			usleep(4000);
-			if (j % 64 == 0)
-				printf("inserting: %d\n",value_in); 
+			printf("inserting: %d\n",value_in); 
 		}
 		usleep(4000);
-		for(j = 0; j < SIZE; ++j) {
+		for(j = 0; j < 3 * SIZE; ++j) {
 			if (ioctl(fifo1_fd, VGA_LED_READ_DIGIT, &value_out)) {
 				perror("ioctl(VGA_LED_READ_DIGIT) failed");
 				return;
 			}
 			usleep(4000);
-			if (j % 64 == 0)
-				printf("value_in: %d value_out: %d\n",value_in,value_out); 
+			printf("j: %d value_out: %d\n",j ,value_out); 
 		}
 
 	//}
