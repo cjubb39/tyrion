@@ -54,7 +54,6 @@ void svd_tb::dmac(void) {
 	data_from_dut.reset_get();
 
 	wait();
-
 	mat_size = MAX_SIZE;
 	fill_buf();
 	compute_golden_model();
@@ -137,6 +136,7 @@ void svd_tb::dmac(void) {
 		}
 	}
 #endif
+top:
 	/* put data to DUT */
 	for (int i = 0; i < SVD_INPUT_SIZE(MAX_SIZE); ++i) {
 		SVD_CELL_TYPE tmp;
@@ -181,6 +181,10 @@ void svd_tb::dmac(void) {
 	
 	do {wait();}
 	while (!svd_done.read());
+
+	static int one = 1;
+	if (!--one)
+		goto top;
 
 	// Stop simulation
 	sc_stop();
