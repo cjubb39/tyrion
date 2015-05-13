@@ -16,6 +16,7 @@ SC_MODULE(blargen_wrapper) {
 
 	void handle_input(void);
 	void handle_output(void);
+	void handle_reset(void);
 
 	SC_CTOR(blargen_wrapper):
 		dut("svd")
@@ -24,6 +25,8 @@ SC_MODULE(blargen_wrapper) {
 		SC_CTHREAD(handle_input, clk.pos());
 		reset_signal_is(rst, false);
 		SC_CTHREAD(handle_output, clk.pos());
+		reset_signal_is(rst, false);
+		SC_CTHREAD(handle_reset, clk.pos());
 		reset_signal_is(rst, false);
 
 		/* external interface */
@@ -38,9 +41,10 @@ SC_MODULE(blargen_wrapper) {
 
 		/* signals -> dut */
 		dut.clk(clk);
-		dut.rst(rst);
+		dut.rst(dut_rst);
 		dut.data_in(bufdin);
 		dut.data_out(bufdout);
+		dut.done(dut_done);
 	}
 
 private:
@@ -50,6 +54,9 @@ private:
 
 	put_initiator<unsigned> data_to_dut;
 	get_initiator<unsigned> data_from_dut;
+
+	sc_signal<bool> dut_done;
+	sc_signal<bool> dut_rst;
 };
 
 

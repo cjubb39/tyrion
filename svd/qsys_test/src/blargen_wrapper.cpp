@@ -1,5 +1,21 @@
 #include "blargen_wrapper.h"
 
+void blargen_wrapper::handle_reset() {
+	dut_rst.write(false);
+	wait();
+	dut_rst.write(true);
+
+	while (true) {
+		do {wait();}
+		while(!dut_done.read());
+
+		dut_rst.write(false);
+		wait();
+		dut_rst.write(true);
+	}
+}
+	
+
 void blargen_wrapper::handle_input() {
 	unsigned tmp, tmp2, res;
 

@@ -47,6 +47,7 @@ void blargen::process(void) {
 
 void blargen::output(void) {
 	data_out.reset_put();
+	done.write(false);
 	wait();
 
 	do {wait();}
@@ -59,6 +60,9 @@ void blargen::output(void) {
 		data_out.put(tmp);
 		wait();
 	}
+
+	wait();
+	done.write(true);
 
 	do {wait();}
 	while(true);

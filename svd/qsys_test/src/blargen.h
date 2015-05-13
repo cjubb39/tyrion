@@ -14,6 +14,8 @@ SC_MODULE(blargen) {
 	b_get_initiator<unsigned> data_in;
 	b_put_initiator<unsigned> data_out;
 
+	sc_out<bool> done;
+
 	void input(void);
 	void process(void);
 	void output(void);
