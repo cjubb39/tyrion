@@ -8,10 +8,14 @@ void blargen::beh(void) {
 	unsigned tmp;
 
 	while(true) {
-		tmp = data_in.get();
-		wait();
-		data_out.put(tmp);
-		wait();
+		for (int i = 0; i < 4; ++i) {
+			tmp = data_in.get();
+			wait();
+		}
+		for (int i = 0; i < 4; ++i) {
+			data_out.put(tmp);
+			wait();
+		}
 	}
 }
 
