@@ -12,6 +12,14 @@
    element $${FILENAME}
    {
    }
+   element blargen_0
+   {
+      datum _sortIndex
+      {
+         value = "5";
+         type = "int";
+      }
+   }
    element clk_0
    {
       datum _sortIndex
@@ -60,19 +68,19 @@
          type = "String";
       }
    }
-   element fifo_1.in_csr
-   {
-      datum baseAddress
-      {
-         value = "32";
-         type = "String";
-      }
-   }
    element fifo_0.in_csr
    {
       datum baseAddress
       {
          value = "64";
+         type = "String";
+      }
+   }
+   element fifo_1.in_csr
+   {
+      datum baseAddress
+      {
+         value = "32";
          type = "String";
       }
    }
@@ -635,6 +643,7 @@
   <parameter name="useWriteControl" value="true" />
   <parameter name="deviceFamilyString" value="Cyclone V" />
  </module>
+ <module kind="blargen" version="1.1" enabled="1" name="blargen_0" />
  <connection
    kind="clock"
    version="13.1"
@@ -717,8 +726,19 @@
  <connection
    kind="avalon_streaming"
    version="13.1"
-   start="fifo_0.out"
+   start="blargen_0.avalon_streaming_source"
    end="fifo_1.in" />
+ <connection
+   kind="avalon_streaming"
+   version="13.1"
+   start="fifo_0.out"
+   end="blargen_0.avalon_streaming_sink" />
+ <connection kind="clock" version="13.1" start="clk_0.clk" end="blargen_0.clock" />
+ <connection
+   kind="reset"
+   version="13.1"
+   start="clk_0.clk_reset"
+   end="blargen_0.reset_sink" />
  <interconnectRequirement for="$system" name="qsys_mm.clockCrossingAdapter" value="HANDSHAKE" />
  <interconnectRequirement for="$system" name="qsys_mm.maxAdditionalLatency" value="1" />
  <interconnectRequirement for="$system" name="qsys_mm.insertDefaultSlave" value="false" />
