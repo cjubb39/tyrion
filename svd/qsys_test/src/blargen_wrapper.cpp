@@ -1,7 +1,7 @@
 #include "blargen_wrapper.h"
 
 void blargen_wrapper::handle_input() {
-	unsigned tmp;
+	unsigned tmp, tmp2, res;
 
 	data_in.reset_get();
 	data_to_dut.reset_put();
@@ -11,6 +11,11 @@ void blargen_wrapper::handle_input() {
 WRAPPER_INPUT_LOOP:
 			tmp = data_in.get();
 			wait();
+
+			tmp2 = data_in.get();
+			wait();
+
+			res = tmp + tmp2 % 2;
 
 			data_to_dut.put(tmp);
 			wait();
@@ -27,6 +32,9 @@ void blargen_wrapper::handle_output() {
 	while (true) {
 WRAPPER_OUTPUT_LOOP:
 			tmp = data_from_dut.get();
+			wait();
+
+			data_out.put(tmp);
 			wait();
 
 			data_out.put(tmp);
