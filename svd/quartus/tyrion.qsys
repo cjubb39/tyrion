@@ -6,14 +6,33 @@
    version="1.0"
    description=""
    tags=""
-   categories="" />
+   categories="System" />
  <parameter name="bonusData"><![CDATA[bonusData 
 {
+   element $${FILENAME}
+   {
+   }
    element clk_0
    {
       datum _sortIndex
       {
          value = "0";
+         type = "int";
+      }
+   }
+   element fifo_0
+   {
+      datum _sortIndex
+      {
+         value = "3";
+         type = "int";
+      }
+   }
+   element fifo_1
+   {
+      datum _sortIndex
+      {
+         value = "4";
          type = "int";
       }
    }
@@ -25,11 +44,56 @@
          type = "int";
       }
    }
+   element fifo_0.in
+   {
+      datum _lockedAddress
+      {
+         value = "0";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "8";
+         type = "String";
+      }
+   }
+   element fifo_0.in_csr
+   {
+      datum baseAddress
+      {
+         value = "64";
+         type = "String";
+      }
+   }
+   element fifo_1.in_csr
+   {
+      datum baseAddress
+      {
+         value = "32";
+         type = "String";
+      }
+   }
    element master_0
    {
       datum _sortIndex
       {
          value = "2";
+         type = "int";
+      }
+   }
+   element fifo_1.out
+   {
+      datum baseAddress
+      {
+         value = "0";
+         type = "String";
+      }
+   }
+   element tyrion_dev_0
+   {
+      datum _sortIndex
+      {
+         value = "5";
          type = "int";
       }
    }
@@ -45,7 +109,7 @@
  <parameter name="globalResetBus" value="false" />
  <parameter name="hdlLanguage" value="VERILOG" />
  <parameter name="maxAdditionalLatency" value="1" />
- <parameter name="projectName" value="" />
+ <parameter name="projectName" value="tyrion.qpf" />
  <parameter name="sopcBorderPoints" value="false" />
  <parameter name="systemHash" value="0" />
  <parameter name="timeStamp" value="0" />
@@ -61,7 +125,7 @@
   <parameter name="inputClockFrequency" value="0" />
   <parameter name="resetSynchronousEdges" value="NONE" />
  </module>
- <module kind="altera_hps" version="13.1" enabled="1" name="hps_0">
+ <module kind="altera_hps" version="13.1.1" enabled="1" name="hps_0">
   <parameter name="MEM_VENDOR" value="Micron" />
   <parameter name="MEM_FORMAT" value="DISCRETE" />
   <parameter name="RDIMM_CONFIG" value="0000000000000000" />
@@ -279,7 +343,6 @@
   <parameter name="USE_FAKE_PHY" value="false" />
   <parameter name="FORCE_MAX_LATENCY_COUNT_WIDTH" value="0" />
   <parameter name="ENABLE_NON_DESTRUCTIVE_CALIB" value="false" />
-  <parameter name="ENABLE_DELAY_CHAIN_WRITE" value="false" />
   <parameter name="TRACKING_ERROR_TEST" value="false" />
   <parameter name="TRACKING_WATCH_TEST" value="false" />
   <parameter name="MARGIN_VARIATION_TEST" value="false" />
@@ -535,6 +598,49 @@
   <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone V" />
   <parameter name="AUTO_DEVICE" value="5CSXFC6D6F31C8ES" />
  </module>
+ <module kind="altera_avalon_fifo" version="13.1" enabled="1" name="fifo_0">
+  <parameter name="avalonMMAvalonMMDataWidth" value="32" />
+  <parameter name="avalonMMAvalonSTDataWidth" value="32" />
+  <parameter name="bitsPerSymbol" value="32" />
+  <parameter name="channelWidth" value="0" />
+  <parameter name="errorWidth" value="0" />
+  <parameter name="fifoDepth" value="16" />
+  <parameter name="fifoInputInterfaceOptions" value="AVALONMM_WRITE" />
+  <parameter name="fifoOutputInterfaceOptions" value="AVALONST_SOURCE" />
+  <parameter name="showHiddenFeatures" value="false" />
+  <parameter name="singleClockMode" value="true" />
+  <parameter name="singleResetMode" value="false" />
+  <parameter name="symbolsPerBeat" value="1" />
+  <parameter name="useBackpressure" value="true" />
+  <parameter name="useIRQ" value="false" />
+  <parameter name="usePacket" value="false" />
+  <parameter name="useReadControl" value="false" />
+  <parameter name="useRegister" value="false" />
+  <parameter name="useWriteControl" value="true" />
+  <parameter name="deviceFamilyString" value="Cyclone V" />
+ </module>
+ <module kind="altera_avalon_fifo" version="13.1" enabled="1" name="fifo_1">
+  <parameter name="avalonMMAvalonMMDataWidth" value="32" />
+  <parameter name="avalonMMAvalonSTDataWidth" value="32" />
+  <parameter name="bitsPerSymbol" value="32" />
+  <parameter name="channelWidth" value="0" />
+  <parameter name="errorWidth" value="0" />
+  <parameter name="fifoDepth" value="16" />
+  <parameter name="fifoInputInterfaceOptions" value="AVALONST_SINK" />
+  <parameter name="fifoOutputInterfaceOptions" value="AVALONMM_READ" />
+  <parameter name="showHiddenFeatures" value="false" />
+  <parameter name="singleClockMode" value="true" />
+  <parameter name="singleResetMode" value="false" />
+  <parameter name="symbolsPerBeat" value="1" />
+  <parameter name="useBackpressure" value="true" />
+  <parameter name="useIRQ" value="false" />
+  <parameter name="usePacket" value="false" />
+  <parameter name="useReadControl" value="false" />
+  <parameter name="useRegister" value="false" />
+  <parameter name="useWriteControl" value="true" />
+  <parameter name="deviceFamilyString" value="Cyclone V" />
+ </module>
+ <module kind="tyrion_dev" version="1.1" enabled="1" name="tyrion_dev_0" />
  <connection
    kind="clock"
    version="13.1"
@@ -556,15 +662,84 @@
    version="13.1"
    start="clk_0.clk_reset"
    end="master_0.clk_reset" />
+ <connection kind="clock" version="13.1" start="clk_0.clk" end="fifo_1.clk_in" />
+ <connection kind="clock" version="13.1" start="clk_0.clk" end="fifo_0.clk_in" />
+ <connection
+   kind="reset"
+   version="13.1"
+   start="clk_0.clk_reset"
+   end="fifo_0.reset_in" />
+ <connection
+   kind="reset"
+   version="13.1"
+   start="clk_0.clk_reset"
+   end="fifo_1.reset_in" />
+ <connection
+   kind="clock"
+   version="13.1"
+   start="clk_0.clk"
+   end="tyrion_dev_0.clock" />
+ <connection
+   kind="reset"
+   version="13.1"
+   start="clk_0.clk_reset"
+   end="tyrion_dev_0.reset_sink" />
  <connection
    kind="avalon"
    version="13.1"
-   start="master_0.master"
-   end="hps_0.f2h_axi_slave">
+   start="hps_0.h2f_lw_axi_master"
+   end="fifo_1.out">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x0000" />
   <parameter name="defaultConnection" value="false" />
  </connection>
+ <connection
+   kind="avalon"
+   version="13.1"
+   start="hps_0.h2f_lw_axi_master"
+   end="fifo_0.in">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0008" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
+ <connection kind="avalon" version="13.1" start="master_0.master" end="fifo_0.in">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0008" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="13.1"
+   start="master_0.master"
+   end="fifo_0.in_csr">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0040" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
+ <connection kind="avalon" version="13.1" start="master_0.master" end="fifo_1.out">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0000" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="13.1"
+   start="master_0.master"
+   end="fifo_1.in_csr">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0020" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
+ <connection
+   kind="avalon_streaming"
+   version="13.1"
+   start="fifo_0.out"
+   end="tyrion_dev_0.avalon_streaming_sink" />
+ <connection
+   kind="avalon_streaming"
+   version="13.1"
+   start="tyrion_dev_0.avalon_streaming_source"
+   end="fifo_1.in" />
  <interconnectRequirement for="$system" name="qsys_mm.clockCrossingAdapter" value="HANDSHAKE" />
  <interconnectRequirement for="$system" name="qsys_mm.maxAdditionalLatency" value="1" />
  <interconnectRequirement for="$system" name="qsys_mm.insertDefaultSlave" value="false" />
