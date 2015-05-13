@@ -49,7 +49,7 @@ SC_MODULE(svd_wrapper) {
 
 		/* signals -> dut */
 		dut.clk(clk);
-		dut.rst(rst);
+		dut.rst(dut_rst);
 		dut.rd_index(rd_index);
 		dut.rd_length(rd_length);
 		dut.rd_request(rd_request);
@@ -67,6 +67,7 @@ SC_MODULE(svd_wrapper) {
 
 private:
 	svd dut;
+	sc_signal<bool> dut_rst;
 	sc_signal<unsigned> rd_index;
 	sc_signal<unsigned> rd_length;
 	sc_signal<bool> rd_request;

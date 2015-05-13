@@ -13,16 +13,24 @@ void svd_wrapper::config_svd() {
 
 void svd_wrapper::handle_irq() {
 	svd_done_irq.write(false);
+	dut_rst.write(false);
 	wait();
+	dut_rst.write(true);
 
 	while (true) {
 		do {wait();}
 		while (!svd_done.read());
 
 		/* TODO handle irq properly */
+		/* XXX don't need this functionality in hardware */
 		svd_done_irq.write(true);
-		do {wait();}
-		while (true);
+		wait(); wait(); wait(); wait();
+		wait(); wait(); wait(); wait();
+		svd_done_irq.write(false);
+
+		dut_rst.write(false);
+		wait();
+		dut_rst.write(true);
 	}
 }
 
