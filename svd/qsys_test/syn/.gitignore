@@ -1,0 +1,9 @@
+*.log
+*_work
+model_*
+*_model/
+model/
+blargen/
+setup_locals.tcl
+area.txt
+timing.txt
