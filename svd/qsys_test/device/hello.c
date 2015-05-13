@@ -71,24 +71,29 @@ int main()
 		return -1;
 	}
 
+#define SIZE (2*2*64*64)
+
 	int i, j;
 	//for (i = 0; i < 4; ++i) {
-		for(j = 0; j < 128; ++j) {
-		value_in = 0 * 128 + j;
+		for(j = 0; j < SIZE; ++j) {
+		value_in = 0 * SIZE + j;
 			if (ioctl(fifo0_fd, VGA_LED_WRITE_DIGIT, &value_in)) {
 				perror("ioctl(VGA_LED_WRITE_DIGIT) failed");
 				return;
 			}
 			usleep(4000);
+			if (j % 64 == 0)
+				printf("inserting: %d\n",value_in); 
 		}
 		usleep(4000);
-		for(j = 0; j < 128; ++j) {
+		for(j = 0; j < SIZE; ++j) {
 			if (ioctl(fifo1_fd, VGA_LED_READ_DIGIT, &value_out)) {
 				perror("ioctl(VGA_LED_READ_DIGIT) failed");
 				return;
 			}
 			usleep(4000);
-	printf("value_in: %d value_out: %d\n",value_in,value_out); 
+			if (j % 64 == 0)
+				printf("value_in: %d value_out: %d\n",value_in,value_out); 
 		}
 
 	//}
