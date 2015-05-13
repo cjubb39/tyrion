@@ -120,7 +120,9 @@ CONVERGENCE_LOOP:
 			SVD_PRECISION
 #endif
 			&& fp_abs(le.value - old_value) > SVD_CELL_TYPE(MIN_MOVEMENT)
-			) {
+			
+            && count < MAX_ITERATIONS
+            ) {
 		old_value = le.value;
 		count++;
 		rotate (a, n, u, v, a11, a12, a21, a22);
