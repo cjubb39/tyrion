@@ -4,7 +4,7 @@
 #include "systemc.h"
 #include <ctos_flex_channels.h>
 
-#define SIZE 64
+#define SIZE (2*64*64)
 
 SC_MODULE(blargen) {
 
