@@ -71,7 +71,7 @@ int main()
 		return -1;
 	}
 
-#define SIZE (2*5*5)
+#define SIZE (2*64*64)
 	//(2*2*64*64)
 
 	int i, j;
@@ -83,7 +83,8 @@ int main()
 				return;
 			}
 			usleep(4000);
-			printf("inserting: %d\n",value_in); 
+			if (j % 64 == 0)
+				printf("inserting: %d\n",value_in); 
 		}
 		usleep(4000);
 		for(j = 0; j < 3 * SIZE; ++j) {
@@ -92,7 +93,8 @@ int main()
 				return;
 			}
 			usleep(4000);
-			printf("j: %d value_out: %d\n",j ,value_out); 
+			if (j % 64 == 0)
+				printf("j: %d value_out: %d\n",j ,value_out); 
 		}
 
 	//}
