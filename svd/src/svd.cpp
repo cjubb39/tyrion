@@ -602,6 +602,7 @@ OUTPUT_S_INNER:
 			for (int j = 0; j < MAX_SIZE; ++j) {
 				if (j == rows) break;
 				SVD_CELL_TYPE cell = s[i * size + j];
+				wait();
 				bufdout.put(cell);
 #ifdef VERBOSE
 				cout << "DUT PUT: (index, length, i, j, val)" << index << " " << length
