@@ -71,8 +71,10 @@ int main()
 		return -1;
 	}
 
-	value_in = 2;
-    if (ioctl(fifo0_fd, VGA_LED_WRITE_DIGIT, &value_in)) {
+	int i;
+	for (i = 0; i < 32; ++i) {
+		value_in = i;
+   if (ioctl(fifo0_fd, VGA_LED_WRITE_DIGIT, &value_in)) {
 		perror("ioctl(VGA_LED_WRITE_DIGIT) failed");
 		return;
     }
@@ -83,6 +85,7 @@ int main()
     }
 
 	printf("value_in: %d value_out: %d\n",value_in,value_out); 
+	}
 	/* print_segment_info(); */
 
 	/* write_segments(message); */
