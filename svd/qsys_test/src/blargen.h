@@ -4,6 +4,8 @@
 #include "systemc.h"
 #include <ctos_flex_channels.h>
 
+#define SIZE 64
+
 SC_MODULE(blargen) {
 
 	sc_in<bool> clk;
@@ -12,10 +14,18 @@ SC_MODULE(blargen) {
 	b_get_initiator<unsigned> data_in;
 	b_put_initiator<unsigned> data_out;
 
-	void beh(void);
+	void input(void);
+	void process(void);
+	void output(void);
 
 	SC_CTOR(blargen) {
-		SC_CTHREAD(beh, clk.pos());
+		SC_CTHREAD(input, clk.pos());
+		reset_signal_is(rst, false);
+
+		SC_CTHREAD(process, clk.pos());
+		reset_signal_is(rst, false);
+
+		SC_CTHREAD(output, clk.pos());
 		reset_signal_is(rst, false);
 
 		data_in.clk_rst(clk, rst);
@@ -23,7 +33,10 @@ SC_MODULE(blargen) {
 	}
 
 	private:
-	unsigned data[64];
+	unsigned data[SIZE];
+
+	sc_signal<bool> done_input;
+	sc_signal<bool> done_process;
 };
 
 #endif
