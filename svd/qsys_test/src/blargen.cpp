@@ -8,11 +8,11 @@ void blargen::beh(void) {
 	//unsigned tmp;
 
 	while(true) {
-		for (int i = 0; i < 16; ++i) {
+		for (int i = 0; i < 64; ++i) {
 			data[i] = data_in.get();
 			wait();
 		}
-		for (int i = 0; i < 16; ++i) {
+		for (int i = 0; i < 64; ++i) {
 			data_out.put(data[i]);
 			wait();
 		}

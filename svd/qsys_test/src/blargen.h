@@ -23,7 +23,7 @@ SC_MODULE(blargen) {
 	}
 
 	private:
-	unsigned data[16];
+	unsigned data[64];
 };
 
 #endif
