@@ -7,7 +7,7 @@ void blargen_tb::beh(void) {
 
 	for (int i = 0; i < 8; ++i) {
 		for (int j = 0 ; j < 4; ++j) {
-			data_to_dut.put(i);
+			data_to_dut.put(i * 4 + j);
 			wait();
 		}
 		for (int j = 0 ; j < 4; ++j) {

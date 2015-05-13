@@ -5,15 +5,15 @@ void blargen::beh(void) {
 	data_out.reset_put();
 	wait();
 
-	unsigned tmp;
+	//unsigned tmp;
 
 	while(true) {
 		for (int i = 0; i < 4; ++i) {
-			tmp = data_in.get();
+			data[i] = data_in.get();
 			wait();
 		}
 		for (int i = 0; i < 4; ++i) {
-			data_out.put(tmp);
+			data_out.put(data[i]);
 			wait();
 		}
 	}
