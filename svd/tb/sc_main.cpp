@@ -52,7 +52,7 @@ int sc_main(int, char**) {
 	sc_signal<bool>     conf_done;
 
 	// computation complete
-	sc_signal<bool>    svd_done;
+	//sc_signal<bool>    svd_done;
 
 
 #if 0
@@ -86,7 +86,6 @@ int sc_main(int, char**) {
 	wrapper.rst(rst_dut);
 	wrapper.data_in(data_in);
 	wrapper.data_out(data_out);
-	wrapper.svd_done_irq(svd_done);
 
 	tb.clk(clk);
 	tb.rst(rst);
@@ -118,7 +117,6 @@ int sc_main(int, char**) {
 
 	tb.data_to_dut(data_in);
 	tb.data_from_dut(data_out);
-	tb.svd_done(svd_done);
 
 
 	/* simulation */

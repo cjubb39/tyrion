@@ -17,6 +17,10 @@ void svd_wrapper::handle_irq() {
 	wait();
 	dut_rst.write(true);
 
+	do {wait();}
+	while(true);
+	/* TODO reset self properly */
+
 	while (true) {
 		do {wait();}
 		while (!svd_done.read());

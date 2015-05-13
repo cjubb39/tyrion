@@ -17,7 +17,7 @@ SC_MODULE(svd_wrapper) {
 	get_initiator<uint32_t> data_in;
 	put_initiator<uint32_t> data_out;
 
-	sc_out<bool> svd_done_irq;
+	//sc_out<bool> svd_done_irq;
 
 	void config_svd(void);
 	void handle_irq(void);
@@ -84,6 +84,8 @@ private:
 
 	put_initiator<SVD_CELL_TYPE> data_to_dut;
 	get_initiator<SVD_CELL_TYPE> data_from_dut;
+
+	sc_signal<bool> svd_done_irq;
 };
 
 

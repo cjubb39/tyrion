@@ -179,12 +179,11 @@ top:
 		output_matrix[i] = tmp;
 	}
 	
-	do {wait();}
-	while (!svd_done.read());
-
+#if 0
 	static int one = 1;
 	if (!--one)
 		goto top;
+#endif
 
 	// Stop simulation
 	sc_stop();

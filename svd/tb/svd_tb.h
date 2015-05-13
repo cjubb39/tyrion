@@ -45,7 +45,7 @@ SC_MODULE(svd_tb) {
 	get_initiator<uint32_t> data_from_dut;
 
 	// computation complete. Written by store_output
-	sc_in<bool> svd_done;
+	//sc_in<bool> svd_done;
 
 	void dmac(void);
 
