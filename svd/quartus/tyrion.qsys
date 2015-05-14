@@ -20,6 +20,14 @@
          type = "int";
       }
    }
+   element hps_0.f2h_axi_slave
+   {
+      datum baseAddress
+      {
+         value = "4294967296";
+         type = "String";
+      }
+   }
    element fifo_0
    {
       datum _sortIndex
@@ -46,11 +54,6 @@
    }
    element fifo_0.in
    {
-      datum _lockedAddress
-      {
-         value = "0";
-         type = "boolean";
-      }
       datum baseAddress
       {
          value = "8";
@@ -640,7 +643,7 @@
   <parameter name="useWriteControl" value="true" />
   <parameter name="deviceFamilyString" value="Cyclone V" />
  </module>
- <module kind="tyrion_dev" version="1.1" enabled="1" name="tyrion_dev_0" />
+ <module kind="tyrion_dev" version="1.2" enabled="1" name="tyrion_dev_0" />
  <connection
    kind="clock"
    version="13.1"
@@ -662,28 +665,27 @@
    version="13.1"
    start="clk_0.clk_reset"
    end="master_0.clk_reset" />
- <connection kind="clock" version="13.1" start="clk_0.clk" end="fifo_1.clk_in" />
  <connection kind="clock" version="13.1" start="clk_0.clk" end="fifo_0.clk_in" />
- <connection
-   kind="reset"
-   version="13.1"
-   start="clk_0.clk_reset"
-   end="fifo_0.reset_in" />
+ <connection kind="clock" version="13.1" start="clk_0.clk" end="fifo_1.clk_in" />
  <connection
    kind="reset"
    version="13.1"
    start="clk_0.clk_reset"
    end="fifo_1.reset_in" />
  <connection
-   kind="clock"
-   version="13.1"
-   start="clk_0.clk"
-   end="tyrion_dev_0.clock" />
- <connection
    kind="reset"
    version="13.1"
    start="clk_0.clk_reset"
-   end="tyrion_dev_0.reset_sink" />
+   end="fifo_0.reset_in" />
+ <connection
+   kind="avalon"
+   version="13.1"
+   start="hps_0.h2f_lw_axi_master"
+   end="fifo_0.in">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0008" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
  <connection
    kind="avalon"
    version="13.1"
@@ -696,24 +698,15 @@
  <connection
    kind="avalon"
    version="13.1"
-   start="hps_0.h2f_lw_axi_master"
-   end="fifo_0.in">
+   start="master_0.master"
+   end="fifo_0.in_csr">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x0008" />
+  <parameter name="baseAddress" value="0x0040" />
   <parameter name="defaultConnection" value="false" />
  </connection>
  <connection kind="avalon" version="13.1" start="master_0.master" end="fifo_0.in">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x0008" />
-  <parameter name="defaultConnection" value="false" />
- </connection>
- <connection
-   kind="avalon"
-   version="13.1"
-   start="master_0.master"
-   end="fifo_0.in_csr">
-  <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x0040" />
   <parameter name="defaultConnection" value="false" />
  </connection>
  <connection kind="avalon" version="13.1" start="master_0.master" end="fifo_1.out">
@@ -733,13 +726,23 @@
  <connection
    kind="avalon_streaming"
    version="13.1"
-   start="fifo_0.out"
-   end="tyrion_dev_0.avalon_streaming_sink" />
+   start="tyrion_dev_0.avalon_streaming_source"
+   end="fifo_1.in" />
  <connection
    kind="avalon_streaming"
    version="13.1"
-   start="tyrion_dev_0.avalon_streaming_source"
-   end="fifo_1.in" />
+   start="fifo_0.out"
+   end="tyrion_dev_0.avalon_streaming_sink" />
+ <connection
+   kind="clock"
+   version="13.1"
+   start="clk_0.clk"
+   end="tyrion_dev_0.clock" />
+ <connection
+   kind="reset"
+   version="13.1"
+   start="clk_0.clk_reset"
+   end="tyrion_dev_0.reset_sink" />
  <interconnectRequirement for="$system" name="qsys_mm.clockCrossingAdapter" value="HANDSHAKE" />
  <interconnectRequirement for="$system" name="qsys_mm.maxAdditionalLatency" value="1" />
  <interconnectRequirement for="$system" name="qsys_mm.insertDefaultSlave" value="false" />
