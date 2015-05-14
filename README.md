@@ -9,6 +9,7 @@ The directory structure is as follows:
 ├── cargo                 # files to use CARGO Linux simulator
 ├── device                # dts, driver, etc.
 ├── docs                  # some documentation
+├── img-compression       # image compression with svd
 ├── lsa                   # LSA-related files
 ├── svd                   # Files for svd accelerator hardware
 │   ├── ctos-sim-unisim   ## post-synthesis simulation
