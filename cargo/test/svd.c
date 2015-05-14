@@ -20,26 +20,26 @@
 /* device struct */
 struct svd_device {
 	struct cdev cdev;
-  struct dad_device *dad_dev; /* parent device */
-  struct device *dev;
-  struct module *module;
-  struct mutex lock;
-  struct completion completion;
-  void __iomem *iomem; /* mmapped regs */
-  size_t max_size;
-  int number;
+	struct dad_device *dad_dev; /* parent device */
+	struct device *dev;
+	struct module *module;
+	struct mutex lock;
+	struct completion completion;
+	void __iomem *iomem; /* mmapped regs */
+	size_t max_size;
+	int number;
 };
 
 struct svd_file {
-  struct svd_device *dev;
-  void *vbuf; /* virtual address of contiguous buffer */
-  dma_addr_t dma_handle; /* physical address of that buffer */
-  size_t size;
+	struct svd_device *dev;
+	void *vbuf; /* virtual address of contiguous buffer */
+	dma_addr_t dma_handle; /* physical address of that buffer */
+	size_t size;
 };
 
 static const struct dad_device_id svd_ids[] = {
-  { SVD_SYNC_DEV_ID },
-  { },
+	{ SVD_SYNC_DEV_ID },
+	{ },
 };
 
 static struct class *svd_class;
@@ -47,26 +47,26 @@ static dev_t svd_devno;
 static dev_t svd_n_devices;
 
 static irqreturn_t svd_irq(int irq, void *dev) {
- struct svd_device *svd = dev;
- u32 cmd_reg;
+	struct svd_device *svd = dev;
+	u32 cmd_reg;
 
- cmd_reg = ioread32(svd->iomem + SVD_REG_CMD);
- cmd_reg >>= SVD_CMD_IRQ_SHIFT;
- cmd_reg &= SVD_CMD_IRQ_MASK;
+	cmd_reg = ioread32(svd->iomem + SVD_REG_CMD);
+	cmd_reg >>= SVD_CMD_IRQ_SHIFT;
+	cmd_reg &= SVD_CMD_IRQ_MASK;
 
- if (cmd_reg == SVD_CMD_IRQ_DONE) {
-	 complete_all(&svd->completion);
-	 iowrite32(0, svd->iomem + SVD_REG_CMD);
-	 return IRQ_HANDLED;
- }
- return IRQ_NONE;
+	if (cmd_reg == SVD_CMD_IRQ_DONE) {
+		complete_all(&svd->completion);
+		iowrite32(0, svd->iomem + SVD_REG_CMD);
+		return IRQ_HANDLED;
+	}
+	return IRQ_NONE;
 }
 
 static bool svd_access_ok(struct svd_device *svd,
-			const struct svd_access *access) {
+		const struct svd_access *access) {
 	unsigned max_sz = ioread32(svd->iomem + SVD_REG_MAX_SIZE);
 	if (access->size > max_sz ||
-		access->size <= 0)
+			access->size <= 0)
 		return false;
 
 	return true;
@@ -115,9 +115,9 @@ static int svd_access_ioctl( struct svd_device *svd, struct svd_file *file,
 }
 
 static long svd_do_ioctl(
-			struct file *file,
-			unsigned int cm,
-			void __user *arg) {
+		struct file *file,
+		unsigned int cm,
+		void __user *arg) {
 	struct svd_file *priv = file->private_data;
 	struct svd_device *svd = priv->dev;
 
@@ -130,9 +130,9 @@ static long svd_do_ioctl(
 }
 
 static long svd_ioctl(
-			struct file *file,
-			unsigned int cm,
-			unsigned long arg) {
+		struct file *file,
+		unsigned int cm,
+		unsigned long arg) {
 	return svd_do_ioctl(file, cm, (void __user *)arg);
 }
 
@@ -199,10 +199,10 @@ static int svd_release(struct inode *inode, struct file *file) {
 /* driver-defined functions for interacting with device */
 static const struct file_operations svd_fops = {
 	.owner           = THIS_MODULE,
-  .open            = svd_open,
-  .release         = svd_release,
-  .unlocked_ioctl  = svd_ioctl,
-  .mmap            = svd_mmap,
+	.open            = svd_open,
+	.release         = svd_release,
+	.unlocked_ioctl  = svd_ioctl,
+	.mmap            = svd_mmap,
 };	
 
 static int svd_create_cdev(struct svd_device *svd, int ndev) {
@@ -237,7 +237,7 @@ out:
 
 static void svd_destroy_cdev(struct svd_device *svd, int ndev) {
 	dev_t devno = MKDEV(MAJOR(svd_devno), ndev);
-	
+
 	device_destroy(svd_class, devno);
 	cdev_del(&svd->cdev);
 }
@@ -313,8 +313,8 @@ static void __exit svd_remove(struct dad_device *dev) {
 static struct dad_driver svd_driver = {
 	.probe      = svd_probe,
 	.remove     = svd_remove,
-  .name       = DRV_NAME,
-  .id_table   = svd_ids,
+	.name       = DRV_NAME,
+	.id_table   = svd_ids,
 };
 
 static int __init svd_sysfs_device_create(void) {

@@ -20,28 +20,8 @@
 #include "svd_data.h"
 #include "gm_jacobi.h"
 
-//#define SVD_OUTPUT_LENGTH(__sz) (SVD_OUTPUT_SIZE(__sz) / sizeof(SVD_CELL_TYPE))
-
 static const char *devname = "/dev/svd.0";
 
-#if 0
-int main(int argc, char *argv[]) {
-	u16 *buf;
-	struct svd_access desc;
-	int rc;
-
-	input  = malloc(sizeof(*input) * SVD_INPUT_SIZE(sz));
-	result = malloc(sizeof(*result) * SVD_OUTPUT_SIZE(sz));
-	golden = malloc(sizeof(*golden) * SVD_OUTPUT_SIZE(sz));
-
-	fd = open(devname, O_RDWR, 0);
-	buf = mmap(NULL, buf_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-	memmove(buf, input, SVD_INPUT_SIZE(sz));
-	desc.size = sz;
-	rc = ioctl(fd, SVD_IOC_ACCESS, &desc);
-	memmove(result, buf + SVD_INPUT_SIZE(sz)/ sizeof(u16), SVD_OUTPUT_SIZE(sz));
-}
-#endif
 void compute_golden_model(SVD_CELL_TYPE *golden_input_matrix,
 		SVD_CELL_TYPE *golden_matrix, int mat_size) {
 	gm_jacobi(golden_input_matrix, mat_size,
@@ -56,7 +36,7 @@ int main(int argc, char **argv) {
 
 	int fd, rc;
 	struct svd_access desc;
-	
+
 	SVD_CELL_TYPE *input_matrix, *golden_input_matrix;
 	SVD_CELL_TYPE *output_matrix, *golden_matrix;
 
