@@ -74,8 +74,11 @@ static long write_to_tyrion(tyrion_arg_t vla) {
 		kfree(buf);
 		return -EFAULT;
 	}
+    for (i = 0; i < vla.length; i++) {
+        convert_to_bv((double*) &buf[i]); 
 
-	for (i = 0; i < num_to_write; ++i) {
+
+	for (i = 0; i < nu _to_write; ++i) {
 		uint32_t value;
 
 		value = buf[i];
@@ -96,13 +99,16 @@ static long read_from_tyrion(tyrion_arg_t vla) {
 		ret = -ENOMEM;
 		goto failed_allocation;
 	}
-
 	for (i = 0; i < num_to_read; ++i) {
 		uint32_t value;
 
 		value = ioread32(dev.virtbase);
 		buf[i] = value;
 	}
+
+    for (i = 0; i< vla.length; i++) {
+        convert_to_double((uint64_t*) &buf[i]);
+    }
 
 	if (copy_to_user(vla.mem_base, buf, num_to_read * sizeof *buf)) {
 		ret = -EFAULT;
