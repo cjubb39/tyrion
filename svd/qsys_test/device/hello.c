@@ -14,6 +14,8 @@
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdint.h> 
+
 
 int fifo0_fd;
 int fifo1_fd;
@@ -48,6 +50,121 @@ int fifo1_fd;
 /*     } */
 /*   } */
 /* } */
+#define MAX 8388608
+
+void double_to_bv(double d, uint64_t* fixed) { 
+    double sub = MAX; 
+    *fixed = 0; 
+    int i; 
+    for (i = 63; i >= 0; i--) {
+        if (d > sub) {
+        //set the bit and substract the value from sub 
+            d -= sub;
+            *fixed |= ( 1UL << i); 
+        }
+        sub /= 2.0; 
+    }
+}
+
+void convert_to_bv(double* fixed) {
+    double d = *fixed; 
+    double_to_bv(d, (uint64_t *) fixed); 
+}
+
+void bv_to_double(uint64_t fixed, double* d) { 
+    double sub = MAX; 
+    *d = 0.0; 
+    int i; 
+
+    for (i = 63; i >= 0; i--) {
+        if ((fixed & (1UL << i))) {
+            
+            *d += sub;
+        }
+        sub /= 2.0; 
+    }
+
+}
+
+
+void convert_to_double(uint64_t* d) {
+    uint64_t fixed  = *d; 
+    bv_to_double(fixed, (double*) d); 
+}
+
+#define SIZE (2*64*64)
+void check_correct() {
+	double* test = (double*) malloc(SIZE/2 * sizeof(double)); 
+	
+	uint64_t in, out;
+	int input;  
+	double res; 
+	int j; 
+	srand(NULL); //lol time on fpga board 
+	for (j = 0; j < SIZE/2; j++) {
+		test[j] = (double) rand() / 1234543.424;
+	//	printf("%f\n", test[j]);  
+	}
+	for (j = 0; j < SIZE/2; j++) {
+		double_to_bv(test[j], &in); 
+		//confirmed works with zeoes 
+		in = 1324352 << 32;
+		in += 2224223;  
+
+		//confirmed nonzero bv
+		//printf("Inserting % bv: %lu \n", test[j], in); 
+		//should i give the high order bits first?
+		input = (int) (in >> 32); 
+		if (ioctl(fifo0_fd, VGA_LED_WRITE_DIGIT, &input)) {
+				perror("ioctl(VGA_LED_WRITE_DIGIT) failed");
+				return;
+		}
+		usleep(4000);
+		if (j % 64 == 0)
+			printf("%d inserting: %d\n",j,input); 
+
+		input = (int) in; 
+		if (ioctl(fifo0_fd, VGA_LED_WRITE_DIGIT, &input)) {
+				perror("ioctl(VGA_LED_WRITE_DIGIT) failed");
+				return;
+		}
+		usleep(4000);
+		if (j % 64 == 0)
+			printf("%d inserting: %d\n",j,input); 
+
+	}
+	printf("finished writing j: %d\n", j);
+	sleep(2);
+	printf("start reading\n");
+	sleep(1);
+
+	int res1, res2; 
+	for(j = 0; j < 3 * SIZE/2; j++) {
+		if (ioctl(fifo1_fd, VGA_LED_READ_DIGIT, &res1)) {
+			perror("ioctl(VGA_LED_READ_DIGIT) failed");
+			return;
+		}
+		usleep(4000);
+
+		if (ioctl(fifo1_fd, VGA_LED_READ_DIGIT, &res2)) {
+			perror("ioctl(VGA_LED_READ_DIGIT) failed");
+			return;
+		}
+		usleep(4000);
+		out = res1; 
+		out <<= 32; 
+		out += res2; //can /should i use an or here 
+		
+		bv_to_double(out, &res); 
+
+		printf("Matrix %d: val %f bv %lu\n", j/(SIZE/2), res, out); 
+	}
+}
+		
+	
+	 
+		
+
 
 int main()
 {
@@ -72,13 +189,13 @@ int main()
 	}
 
 //#define SIZE (2*5*5)
-#define SIZE (2*64*64)
 
 	int i, j;
 	//for (i = 0; i < 4; ++i) {
+#if 1 
 		for(j = 0; j < SIZE / 2; ++j) {
 		//value_in = 0 * SIZE + j;
-			value_in = 0;//(2 * j) << 12;
+			value_in = (2 * j) << 12;
 			if (ioctl(fifo0_fd, VGA_LED_WRITE_DIGIT, &value_in)) {
 				perror("ioctl(VGA_LED_WRITE_DIGIT) failed");
 				return;
@@ -87,7 +204,7 @@ int main()
 			if (j % 64 == 0)
 				printf("%d inserting: %d\n",j,value_in); 
 			
-				value_in = 0;//(2*j) << 8;
+				value_in = (2*j) << 8;
 			if (ioctl(fifo0_fd, VGA_LED_WRITE_DIGIT, &value_in)) {
 				perror("ioctl(VGA_LED_WRITE_DIGIT) failed");
 				return;
@@ -110,8 +227,8 @@ int main()
 			if (j % 64 == 0)
 				printf("j: %d value_out: %d\n",j ,value_out); 
 		}
-
-	//}
+#endif 
+	//}  
 	/* print_segment_info(); */
 
 	/* write_segments(message); */
@@ -126,7 +243,7 @@ int main()
 	/*   write_segments(message); */
 	/*   usleep(400000); */
 	/* } */
-  
+//  	check_correct(); 
 	printf("FIFO Userspace program terminating\n");
 	return 0;
 }

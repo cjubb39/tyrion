@@ -23,4 +23,15 @@ clean:
 socfpga.dtb : socfpga.dtb
 	/usr/src/linux/scripts/dtc/dtc -O dtb -o socfpga.dtb socfpga.dts
 
+.PHONY: run
+run:
+	insmod fifo0.ko
+	insmod fifo1.ko 
+	./hello
+
+.PHONY: all 
+all: module hello run
+
+
+
 endif 
