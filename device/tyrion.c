@@ -22,6 +22,7 @@
 #include <linux/uaccess.h>
 #include <linux/interrupt.h>
 #include "tyrion.h"
+#include "utility.h" //double to bv computation 
 
 #include <linux/delay.h>
 
